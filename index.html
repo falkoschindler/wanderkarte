@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wanderkarte Münster – Termine</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root {
+    --paper:  #F3F5F1;
+    --panel:  #FBFCFA;
+    --ink:    #1C2A23;
+    --muted:  #64736A;
+    --line:   #D9E0D8;
+    --past:   #2F6B4F;
+    --past-soft: #E3EEE7;
+    --future: #E2571B;
+    --future-soft: #FBE7DC;
+    --display: "Futura", "Avenir Next Condensed", "Avenir Next", system-ui, sans-serif;
+    --body: "Avenir Next", "Avenir", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.9rem 1.4rem 0.8rem;
+    border-bottom: 2px solid var(--ink);
+    flex: none;
+  }
+  header h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.35rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  header .sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  header .count {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ---------- Main layout ---------- */
+  main { flex: 1; display: flex; min-height: 0; }
+  #map { flex: 1; min-width: 0; background: #DDE4DC; }
+
+  aside {
+    width: 340px;
+    flex: none;
+    overflow-y: auto;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+  }
+  .year-divider {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-family: var(--display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    background: var(--panel);
+    padding: 0.65rem 1.2rem 0.35rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .event {
+    display: grid;
+    grid-template-columns: 10px 1fr;
+    gap: 0.15rem 0.7rem;
+    padding: 0.6rem 1.2rem 0.6rem 1rem;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .event:hover, .event.active { background: var(--past-soft); }
+  .event.future:hover, .event.future.active { background: var(--future-soft); }
+  .event .dot {
+    grid-row: 1 / span 3;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--past);
+    margin-top: 0.35rem;
+  }
+  .event.future .dot { background: var(--future); }
+  .event.nomap .dot { background: transparent; border: 2px solid var(--muted); }
+  .event .date {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .event .badge {
+    font-family: var(--display);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--future);
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    padding: 0.05rem 0.3rem;
+  }
+  .event .loc { font-size: 0.92rem; line-height: 1.35; }
+  .event .note { font-size: 0.8rem; color: var(--muted); font-style: italic; }
+  .empty {
+    padding: 2rem 1.2rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Timeline (footer) ---------- */
+  footer {
+    flex: none;
+    background: var(--panel);
+    border-top: 2px solid var(--ink);
+    padding: 0.75rem 1.6rem 1.1rem;
+  }
+  .tl-head {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.55rem;
+  }
+  .tl-head .range-label {
+    font-family: var(--display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .legend {
+    margin-left: auto;
+    display: flex;
+    gap: 1.1rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    align-items: center;
+  }
+  .legend span { display: flex; align-items: center; gap: 0.35rem; }
+  .legend i {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .legend .l-past i { background: var(--past); }
+  .legend .l-future i { background: var(--future); }
+
+  .timeline {
+    position: relative;
+    height: 56px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .tl-track {
+    position: absolute;
+    left: 0; right: 0; top: 22px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .tl-window {
+    position: absolute;
+    top: 14px;
+    height: 20px;
+    border-radius: 4px;
+    background: rgba(47, 107, 79, 0.13);
+    border: 1px solid rgba(47, 107, 79, 0.35);
+    cursor: grab;
+  }
+  .tl-tick {
+    position: absolute;
+    top: 18px;
+    width: 1px; height: 12px;
+    background: var(--line);
+  }
+  .tl-tick.year { background: var(--muted); top: 16px; height: 16px; }
+  .tl-tick-label {
+    position: absolute;
+    top: 36px;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .tl-dot {
+    position: absolute;
+    top: 24px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--past);
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 120ms ease;
+  }
+  .tl-dot.future { background: var(--future); }
+  .tl-dot.in { opacity: 1; }
+  .tl-today {
+    position: absolute;
+    top: 8px;
+    width: 2px; height: 26px;
+    background: var(--ink);
+    transform: translateX(-50%);
+  }
+  .tl-today-label {
+    position: absolute;
+    top: -4px;
+    transform: translateX(-50%);
+    font-family: var(--display);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .tl-handle {
+    position: absolute;
+    top: 24px;
+    width: 18px; height: 18px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--ink);
+    border: 3px solid var(--panel);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    cursor: ew-resize;
+    z-index: 3;
+    padding: 0;
+  }
+  .tl-handle:focus-visible { outline: 3px solid var(--future); outline-offset: 2px; }
+
+  /* ---------- Leaflet tweaks ---------- */
+  .leaflet-popup-content-wrapper {
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(28, 42, 35, 0.25);
+    font-family: var(--body);
+    color: var(--ink);
+  }
+  .leaflet-popup-content { margin: 0.8rem 1rem; line-height: 1.4; }
+  .popup-loc {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .popup-date {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
+  }
+  .popup-date i {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--past);
+    flex: none;
+  }
+  .popup-date.future i { background: var(--future); }
+  .popup-note { font-size: 0.76rem; color: var(--muted); font-style: italic; margin-top: 0.1rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 720px) {
+    html, body { height: auto; }
+    body { overflow: auto; }
+    main { flex: none; flex-direction: column; min-height: 0; }
+    #map { height: 52vh; flex: none; }
+    aside {
+      width: 100%;
+      order: 2;
+      border-right: none;
+      overflow: visible;
+    }
+    footer {
+      position: sticky;
+      bottom: 0;
+      z-index: 1100;
+      order: 3;
+      padding: 0.6rem 1.2rem 0.9rem;
+      box-shadow: 0 -4px 14px rgba(28, 42, 35, 0.12);
+    }
+    .tl-head { flex-wrap: wrap; gap: 0.3rem 1rem; }
+    .legend { margin-left: 0; }
+    header { padding: 0.8rem 1rem; flex-wrap: wrap; gap: 0.2rem 1rem; }
+    header .sub { flex: 1 1 100%; }
+    header .count { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================================================================
+     TERMINE — zum Aktualisieren einfach den Inhalt von termine.json
+     zwischen die beiden Script-Tags kopieren (kompletten Block ersetzen).
+     Einträge ohne lat/lng erscheinen nur in der Liste, nicht auf der Karte.
+     ====================================================================== -->
+<script id="termine-data" type="application/json">
+[
+  {"date": "2021-12-12", "location": "Südpark, Ecke Dahlweg / Sankt-Josef-Kirchplatz", "lat": 51.94976, "lng": 7.624742},
+  {"date": "2022-01-09", "location": "Parkplatz Albersloher Weg / Haltestelle Hansaring A", "lat": 51.952892, "lng": 7.636579},
+  {"date": "2022-02-13", "location": "Wiese am Kanonierplatz / Melcherstraße", "lat": 51.971112, "lng": 7.613573},
+  {"date": "2022-03-13", "location": "Nordplatz", "lat": 51.972106, "lng": 7.62295},
+  {"date": "2022-04-10", "location": "Parkplatz Ecke Lublinring / Kanalstraße", "lat": 51.973083, "lng": 7.632838},
+  {"date": "2022-05-08", "location": "Parkplatz Rewe Hennig, Hansastraße", "note": "Caption nennt 'Hansastraße' (existiert in Münster nicht); vermutlich REWE am Hansaring 59-65", "lat": 51.954449, "lng": 7.643811},
+  {"date": "2022-06-12", "location": "Ecke Universitätsstraße / Bispinghof (an den Containern)", "lat": 51.960861, "lng": 7.62036},
+  {"date": "2022-07-10", "location": "Ecke Am Stadtgraben / Mühlenstraße (an den Containern)", "lat": 51.958701, "lng": 7.619558},
+  {"date": "2022-08-21", "location": "Schlossplatz, Ecke Frauenstraße (an den Containern)", "note": "3. Sonntag, im Rahmen der 'Aktion saubere Stadt' der AWM", "lat": 51.963564, "lng": 7.61438},
+  {"date": "2022-09-11", "location": "Parkplatz Hallenbad Ost", "lat": 51.959021, "lng": 7.659848},
+  {"date": "2022-10-09", "location": "Parkplatz Wasserstraße am Zwinger", "lat": 51.967581, "lng": 7.631952},
+  {"date": "2022-11-13", "location": "Ecke Einsteinstraße / Wilhelmstraße", "note": "Ende am Kiosk Münzstraße", "lat": 51.96755, "lng": 7.610087},
+  {"date": "2022-12-11", "location": "Hafen, Parkplatz Albersloher Weg / Hansaring", "lat": 51.952892, "lng": 7.636579},
+  {"date": "2023-01-08", "location": "Nordplatz (an den Containern)", "lat": 51.972106, "lng": 7.62295},
+  {"date": "2023-02-12", "location": "Südpark, Dahlweg / St.-Josefs-Kirchplatz", "lat": 51.94976, "lng": 7.624742},
+  {"date": "2023-03-12", "location": "Vorplatz Schlosstheater (Kreuzviertel)", "lat": 51.971182, "lng": 7.614099},
+  {"date": "2023-04-16", "location": "Pluggendorf, Scharnhorststr. / Hoppendamm (vor 'Bauer Melchior')", "note": "3. Sonntag wegen Ostern", "lat": 51.95298, "lng": 7.61416},
+  {"date": "2023-05-14", "location": "Hansaviertel, Rewe Hansaring", "lat": 51.954449, "lng": 7.643811},
+  {"date": "2023-06-11", "location": "An der Aa", "note": "Koordinate ungefähr: 'an der Aa', vermutlich Bereich Bispinghof/Universitätsstraße", "lat": 51.960861, "lng": 7.62036},
+  {"date": "2023-07-09", "location": "Schlossplatz", "note": "ABGESAGT wegen Hitzewarnung", "lat": 51.963564, "lng": 7.61438},
+  {"date": "2023-08-13", "location": "Hafen", "lat": 51.951974, "lng": 7.641096},
+  {"date": "2023-09-10", "location": "Wienburgpark / City-Nord", "lat": 51.980995, "lng": 7.628635},
+  {"date": "2023-09-16", "location": "Stadtweit (einzeln)", "note": "World Cleanup Day, keine Gruppenaktion"},
+  {"date": "2023-10-08", "location": "Nähe Skater's Palace", "lat": 51.938378, "lng": 7.629364},
+  {"date": "2023-11-12", "location": "Kanalstraße (Norden von Münster)", "note": "Koordinate ungefähr (Straßenmitte Kanalstraße)", "lat": 51.978701, "lng": 7.633496},
+  {"date": "2023-12-10", "location": "Hallenbad Mitte / Promenade / Aa", "note": "Jahresabschluss mit Glühwein", "lat": 51.959735, "lng": 7.616246},
+  {"date": "2024-01-14", "location": "Hansaring", "note": "Koordinate ungefähr (Straßenmitte Hansaring)", "lat": 51.95477, "lng": 7.645176},
+  {"date": "2024-02-11", "location": "Schloßtheater (Kreuzviertel)", "lat": 51.971182, "lng": 7.614099},
+  {"date": "2024-03-10", "location": "Schloss / Schlossplatz", "note": "letzter Tag des Frühjahrs-Send", "lat": 51.963564, "lng": 7.61438},
+  {"date": "2024-04-14", "location": "Südviertel, Nähe Südpark", "lat": 51.94976, "lng": 7.624742},
+  {"date": "2024-05-12", "location": "Zwinger, an der Promenade", "lat": 51.967581, "lng": 7.631952},
+  {"date": "2024-06-16", "location": "Hafenstraße / Leostraße (Hafen)", "note": "3. Sonntag wegen Europawahl am 09.06.", "lat": 51.953343, "lng": 7.632433},
+  {"date": "2024-07-14", "location": "Schlosspark, Hittorfstr. / Einsteinstr.", "lat": 51.965584, "lng": 7.603817},
+  {"date": "2024-08-11", "location": "An der Aa, Glascontainer Bispinghof / Universitätsstr.", "lat": 51.960861, "lng": 7.62036},
+  {"date": "2024-09-08", "location": "Südviertel/Geist, Scheibenstraße vor Haus 115 (Glascontainer)", "lat": 51.93885, "lng": 7.627869},
+  {"date": "2024-10-13", "location": "Aasee & Promenade", "note": "14 Uhr statt 13 Uhr, Kooperation mit Walk & Talk (muenster.walkings)", "lat": 51.956928, "lng": 7.618094},
+  {"date": "2024-11-10", "location": "Hansaviertel, REWE Parkplatz Hansaring", "lat": 51.954449, "lng": 7.643811},
+  {"date": "2024-12-08", "location": "Kreuzkirche (Haupteingang)", "lat": 51.970151, "lng": 7.623914},
+  {"date": "2025-01-12", "location": "Parkplatz Lindenhof / Himmelreichallee 40", "lat": 51.959325, "lng": 7.613564},
+  {"date": "2025-02-09", "location": "Hüfferstr. 54 (FH Münster)", "lat": 51.960754, "lng": 7.604938},
+  {"date": "2025-03-09", "location": "Kanalstraße / Lublinring", "lat": 51.973083, "lng": 7.632838},
+  {"date": "2025-04-13", "location": "Rund um die Kletterbar", "lat": 51.978862, "lng": 7.608451},
+  {"date": "2025-05-11", "location": "Hörster Parkplatz / Parkplatz Wasserstr. (Zwinger)", "lat": 51.967596, "lng": 7.631781},
+  {"date": "2025-06-15", "location": "Mühlenstr. / Am Stadtgraben", "note": "3. Sonntag", "lat": 51.958701, "lng": 7.619558},
+  {"date": "2025-07-13", "location": "Schillerstraße / Ecke Ewaldistr.", "lat": 51.952508, "lng": 7.648481},
+  {"date": "2025-08-10", "location": "St. Josef Kirchplatz – Südpark", "lat": 51.950402, "lng": 7.625783},
+  {"date": "2025-09-14", "location": "Hansaring 59–65 (Rewe am Hafen), bei den Altglascontainern", "lat": 51.954433, "lng": 7.64384},
+  {"date": "2025-10-12", "location": "Scharnhorststr. / Hoppendamm", "lat": 51.953259, "lng": 7.61412},
+  {"date": "2025-11-09", "location": "Studtplatz (Hedwigstr. / Studtstr.)", "lat": 51.969265, "lng": 7.618058},
+  {"date": "2025-12-14", "location": "Skaters Palace", "lat": 51.938378, "lng": 7.629364},
+  {"date": "2026-01-11", "location": "Hüfferstraße 52", "lat": 51.96098, "lng": 7.605187},
+  {"date": "2026-02-08", "location": "Grevener Str. 61c (am Altglascontainer)", "lat": 51.971462, "lng": 7.611692},
+  {"date": "2026-03-08", "location": "Sentmaringer Weg / Geiststraße", "lat": 51.945303, "lng": 7.62185},
+  {"date": "2026-04-12", "location": "Stiftsstraße / Sankt-Mauritz-Freiheit", "lat": 51.963255, "lng": 7.64956},
+  {"date": "2026-05-17", "location": "Promenade Flugzeugspielplatz", "note": "Der Ehrentag mit Drinks und Snacks; Flugzeugspielplatz = Spielplatz Coerdeplatz", "lat": 51.967555, "lng": 7.629379},
+  {"date": "2026-06-14", "location": "Mühlenstr. / Am Stadtgraben", "lat": 51.958701, "lng": 7.619558},
+  {"date": "2026-07-12", "location": "Kanalstr. / Lublinring", "lat": 51.973083, "lng": 7.632838},
+  {"date": "2026-09-13", "location": "Friedrich-Ebert-Str. / Südstraße", "lat": 51.948181, "lng": 7.630762},
+  {"date": "2026-10-11", "location": "Geiststr. / Goebenstr.", "lat": 51.9515, "lng": 7.620819},
+  {"date": "2026-11-08", "location": "Bentelerstr. / Rudolf-Harbig-Weg", "lat": 51.972925, "lng": 7.594767},
+  {"date": "2026-12-13", "location": "Sankt-Josefs-Kirchpl. 4 (Südviertel)", "lat": 51.949599, "lng": 7.625752}
+]
+</script>
+
+<header>
+  <h1>Wanderkarte</h1>
+  <span class="sub">Monatliche Treffpunkte in Münster</span>
+  <span class="count" id="count"></span>
+</header>
+
+<main>
+  <aside id="list"></aside>
+  <div id="map"></div>
+</main>
+
+<footer>
+  <div class="tl-head">
+    <span class="range-label" id="range-label"></span>
+    <div class="legend">
+      <span class="l-past"><i></i>vergangen</span>
+      <span class="l-future"><i></i>geplant</span>
+    </div>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- Daten ---------- */
+  const RAW = JSON.parse(document.getElementById('termine-data').textContent);
+
+  const parseDate = s => {
+    const [y, m, d] = s.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const events = RAW
+    .map(e => ({ ...e, dateObj: parseDate(e.date), isFuture: parseDate(e.date) > today }))
+    .sort((a, b) => a.dateObj - b.dateObj);
+
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const MONTHS_SHORT = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const WEEKDAYS = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const fmtDate = d => `${WEEKDAYS[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  const fmtMonth = d => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
+  /* ---------- Zeitdomäne: Monatsgrenzen ---------- */
+  const monthStart = d => new Date(d.getFullYear(), d.getMonth(), 1);
+  const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
+
+  const domainStart = monthStart(events[0].dateObj);
+  const lastEvent = events[events.length - 1].dateObj;
+  const domainEnd = addMonths(monthStart(lastEvent > today ? lastEvent : today), 1);
+
+  const boundaries = [];
+  for (let d = domainStart; d <= domainEnd; d = addMonths(d, 1)) boundaries.push(d);
+
+  const t0 = domainStart.getTime();
+  const t1 = domainEnd.getTime();
+  const frac = date => (date.getTime() - t0) / (t1 - t0);
+
+  /* Auswahl als Indizes in `boundaries` (lo inklusiv, hi exklusiv als Grenze) */
+  const clampIdx = (i, min, max) => Math.max(min, Math.min(max, i));
+  const defaultLo = boundaries.findIndex(b => b.getTime() === monthStart(addMonths(today, -12)).getTime());
+  let lo = defaultLo >= 0 ? defaultLo : 0;
+  let hi = boundaries.length - 1;
+
+  /* ---------- Karte ---------- */
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const map = L.map('map', { zoomControl: true }).setView([51.9607, 7.6261], 13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+  }).addTo(map);
+
+  /* Termine nach Ort gruppieren (gleiche Koordinaten = ein Marker) */
+  const groups = new Map();
+  events.forEach(e => {
+    if (e.lat == null || e.lng == null) return;
+    const key = `${e.lat},${e.lng}`;
+    if (!groups.has(key)) groups.set(key, { lat: e.lat, lon: e.lng, events: [] });
+    groups.get(key).events.push(e);
+  });
+
+  const markers = new Map();
+  groups.forEach((g, key) => {
+    const marker = L.circleMarker([g.lat, g.lon], {
+      radius: 9,
+      weight: 2.5,
+      color: '#FBFCFA',
+      fillOpacity: 0.95,
+    });
+    marker.on('popupopen', () => setActiveListItem(g.events.filter(inRange)[0]));
+    markers.set(key, { marker, group: g });
+  });
+
+  const inRange = e => e.dateObj >= boundaries[lo] && e.dateObj < boundaries[hi];
+
+  function popupHtml(g) {
+    const visible = g.events.filter(inRange);
+    const rows = visible.map(e => `
+      <div class="popup-date${e.isFuture ? ' future' : ''}"><i></i>${fmtDate(e.dateObj)}</div>
+      ${e.note ? `<div class="popup-note">${e.note}</div>` : ''}`).join('');
+    return `<div class="popup-loc">${visible[0]?.location ?? g.events[0].location}</div>${rows}`;
+  }
+
+  function updateMap() {
+    markers.forEach(({ marker, group }) => {
+      const visible = group.events.filter(inRange);
+      if (visible.length === 0) {
+        map.removeLayer(marker);
+        return;
+      }
+      const anyFuture = visible.some(e => e.isFuture);
+      marker.setStyle({ fillColor: anyFuture ? '#E2571B' : '#2F6B4F' });
+      marker.setRadius(visible.length > 1 ? 11 : 9);
+      marker.bindPopup(popupHtml(group));
+      if (!map.hasLayer(marker)) marker.addTo(map);
+    });
+  }
+
+  function fitVisible() {
+    const pts = [];
+    markers.forEach(({ group }) => {
+      if (group.events.some(inRange)) pts.push([group.lat, group.lon]);
+    });
+    if (pts.length) map.fitBounds(pts, { padding: [45, 45], animate: !reducedMotion });
+  }
+
+  /* ---------- Liste ---------- */
+  const listEl = document.getElementById('list');
+  const countEl = document.getElementById('count');
+
+  function setActiveListItem(e) {
+    listEl.querySelectorAll('.event.active').forEach(el => el.classList.remove('active'));
+    if (!e) return;
+    const el = listEl.querySelector(`[data-date="${e.date}"]`);
+    if (el) {
+      el.classList.add('active');
+      el.scrollIntoView({ block: 'nearest', behavior: reducedMotion ? 'auto' : 'smooth' });
+    }
+  }
+
+  function updateList() {
+    const visible = events.filter(inRange).sort((a, b) => b.dateObj - a.dateObj);
+    listEl.innerHTML = '';
+    if (visible.length === 0) {
+      listEl.innerHTML = '<div class="empty">Keine Termine im gewählten Zeitraum. Zieh die Griffe am Zeitstrahl weiter auf.</div>';
+    }
+    let year = null;
+    visible.forEach(e => {
+      if (e.dateObj.getFullYear() !== year) {
+        year = e.dateObj.getFullYear();
+        const div = document.createElement('div');
+        div.className = 'year-divider';
+        div.textContent = year;
+        listEl.appendChild(div);
+      }
+      const item = document.createElement('div');
+      item.className = 'event' + (e.isFuture ? ' future' : '') + (e.lat == null ? ' nomap' : '');
+      item.dataset.date = e.date;
+      item.innerHTML = `
+        <span class="dot"></span>
+        <span class="date">${fmtDate(e.dateObj)}${e.isFuture ? '<span class="badge">geplant</span>' : ''}</span>
+        <span class="loc">${e.location}</span>
+        ${e.note ? `<span class="note">${e.note}</span>` : ''}`;
+      if (e.lat != null) {
+        item.addEventListener('click', () => {
+          const entry = markers.get(`${e.lat},${e.lng}`);
+          if (!entry) return;
+          map.flyTo([e.lat, e.lng], Math.max(map.getZoom(), 14), { animate: !reducedMotion, duration: 0.6 });
+          entry.marker.openPopup();
+          setActiveListItem(e);
+        });
+      }
+      listEl.appendChild(item);
+    });
+    countEl.textContent = `${visible.length} von ${events.length} Terminen`;
+  }
+
+  /* ---------- Zeitstrahl ---------- */
+  const tl = document.getElementById('timeline');
+  const rangeLabel = document.getElementById('range-label');
+
+  const track = document.createElement('div');
+  track.className = 'tl-track';
+  tl.appendChild(track);
+
+  boundaries.forEach((b, i) => {
+    if (i === boundaries.length - 1) return;
+    const tick = document.createElement('div');
+    tick.className = 'tl-tick' + (b.getMonth() === 0 ? ' year' : '');
+    tick.style.left = `${frac(b) * 100}%`;
+    tl.appendChild(tick);
+    if (b.getMonth() === 0 || i === 0) {
+      const label = document.createElement('div');
+      label.className = 'tl-tick-label';
+      label.style.left = `${frac(b) * 100}%`;
+      label.textContent = b.getMonth() === 0 ? String(b.getFullYear()) : `${MONTHS_SHORT[b.getMonth()]} ${b.getFullYear()}`;
+      tl.appendChild(label);
+    }
+  });
+
+  if (today >= domainStart && today <= domainEnd) {
+    const t = document.createElement('div');
+    t.className = 'tl-today';
+    t.style.left = `${frac(today) * 100}%`;
+    tl.appendChild(t);
+    const tLabel = document.createElement('div');
+    tLabel.className = 'tl-today-label';
+    tLabel.style.left = `${frac(today) * 100}%`;
+    tLabel.textContent = 'heute';
+    tl.appendChild(tLabel);
+  }
+
+  const dots = events.map(e => {
+    const dot = document.createElement('div');
+    dot.className = 'tl-dot' + (e.isFuture ? ' future' : '');
+    dot.style.left = `${frac(e.dateObj) * 100}%`;
+    dot.title = `${fmtDate(e.dateObj)} – ${e.location}`;
+    tl.appendChild(dot);
+    return { dot, e };
+  });
+
+  const windowEl = document.createElement('div');
+  windowEl.className = 'tl-window';
+  tl.appendChild(windowEl);
+
+  const mkHandle = label => {
+    const h = document.createElement('button');
+    h.className = 'tl-handle';
+    h.setAttribute('aria-label', label);
+    tl.appendChild(h);
+    return h;
+  };
+  const handleLo = mkHandle('Zeitraum-Beginn');
+  const handleHi = mkHandle('Zeitraum-Ende');
+
+  function renderTimeline() {
+    const xLo = frac(boundaries[lo]) * 100;
+    const xHi = frac(boundaries[hi]) * 100;
+    handleLo.style.left = `${xLo}%`;
+    handleHi.style.left = `${xHi}%`;
+    windowEl.style.left = `${xLo}%`;
+    windowEl.style.width = `${xHi - xLo}%`;
+    dots.forEach(({ dot, e }) => dot.classList.toggle('in', inRange(e)));
+    const endMonth = addMonths(boundaries[hi], -1);
+    rangeLabel.textContent = `${fmtMonth(boundaries[lo])} – ${fmtMonth(endMonth)}`;
+    handleLo.setAttribute('aria-valuetext', fmtMonth(boundaries[lo]));
+    handleHi.setAttribute('aria-valuetext', fmtMonth(endMonth));
+  }
+
+  function applySelection() {
+    renderTimeline();
+    updateList();
+    updateMap();
+  }
+
+  const idxFromClientX = clientX => {
+    const rect = tl.getBoundingClientRect();
+    const f = (clientX - rect.left) / rect.width;
+    return clampIdx(Math.round(f * (boundaries.length - 1)), 0, boundaries.length - 1);
+  };
+
+  function dragHandle(handle, isLo) {
+    handle.addEventListener('pointerdown', ev => {
+      ev.preventDefault();
+      handle.setPointerCapture(ev.pointerId);
+      const move = e2 => {
+        const i = idxFromClientX(e2.clientX);
+        if (isLo) lo = clampIdx(i, 0, hi - 1);
+        else hi = clampIdx(i, lo + 1, boundaries.length - 1);
+        applySelection();
+      };
+      const up = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', up);
+        fitVisible();
+      };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', up);
+    });
+    handle.addEventListener('keydown', ev => {
+      const step = { ArrowLeft: -1, ArrowRight: 1 }[ev.key];
+      if (step === undefined && ev.key !== 'Home' && ev.key !== 'End') return;
+      ev.preventDefault();
+      if (isLo) {
+        lo = ev.key === 'Home' ? 0 : ev.key === 'End' ? hi - 1 : clampIdx(lo + step, 0, hi - 1);
+      } else {
+        hi = ev.key === 'End' ? boundaries.length - 1 : ev.key === 'Home' ? lo + 1 : clampIdx(hi + step, lo + 1, boundaries.length - 1);
+      }
+      applySelection();
+      fitVisible();
+    });
+  }
+  dragHandle(handleLo, true);
+  dragHandle(handleHi, false);
+
+  /* Fenster als Ganzes verschieben */
+  windowEl.addEventListener('pointerdown', ev => {
+    ev.preventDefault();
+    windowEl.setPointerCapture(ev.pointerId);
+    const startIdx = idxFromClientX(ev.clientX);
+    const startLo = lo, startHi = hi;
+    const width = hi - lo;
+    const move = e2 => {
+      const delta = idxFromClientX(e2.clientX) - startIdx;
+      lo = clampIdx(startLo + delta, 0, boundaries.length - 1 - width);
+      hi = lo + width;
+      applySelection();
+    };
+    const up = () => {
+      windowEl.removeEventListener('pointermove', move);
+      windowEl.removeEventListener('pointerup', up);
+      fitVisible();
+    };
+    windowEl.addEventListener('pointermove', move);
+    windowEl.addEventListener('pointerup', up);
+  });
+
+  /* ---------- Start ---------- */
+  applySelection();
+  fitVisible();
+  addEventListener('resize', () => map.invalidateSize());
+})();
+</script>
+</body>
+</html>
