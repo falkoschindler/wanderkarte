@@ -8,6 +8,7 @@
   --past-soft: #E3EEE7;
   --future: #E2571B;
   --future-soft: #FBE7DC;
+  --glass:  #4A7FA5;
   --display: "Futura", "Avenir Next Condensed", "Avenir Next", system-ui, sans-serif;
   --body: "Avenir Next", "Avenir", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, monospace;
@@ -151,7 +152,7 @@ footer {
   color: var(--muted);
   align-items: center;
 }
-.legend span { display: flex; align-items: center; gap: 0.35rem; }
+.legend span, .legend label { display: flex; align-items: center; gap: 0.35rem; }
 .legend i {
   width: 9px; height: 9px;
   border-radius: 50%;
@@ -159,6 +160,9 @@ footer {
 }
 .legend .l-past i { background: var(--past); }
 .legend .l-future i { background: var(--future); }
+.legend .l-glass { cursor: pointer; }
+.legend .l-glass i { background: var(--glass); }
+.legend .l-glass input { accent-color: var(--glass); cursor: pointer; }
 
 .timeline {
   position: relative;

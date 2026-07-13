@@ -72,6 +72,29 @@
     markers.set(key, { marker, group: g });
   });
 
+  /* ---------- Altglascontainer (optional einblendbar) ---------- */
+  const glassPane = map.createPane('glass');
+  glassPane.style.zIndex = 380; // unter den Termin-Markern (overlayPane: 400)
+  const glassLayer = L.layerGroup();
+  const glassToggle = document.getElementById('glass-toggle');
+  let glassLoaded = false;
+  glassToggle.addEventListener('change', async () => {
+    if (glassToggle.checked && !glassLoaded) {
+      glassLoaded = true;
+      const containers = await fetch('glascontainer.json').then(r => r.json());
+      containers.forEach(c => L.circleMarker([c.lat, c.lng], {
+        pane: 'glass',
+        radius: 4,
+        stroke: false,
+        fillColor: '#4A7FA5',
+        fillOpacity: 0.65,
+      }).bindTooltip(`${c.ort} (${c.viertel})`, { direction: 'top', offset: [0, -4] })
+        .addTo(glassLayer));
+    }
+    if (glassToggle.checked) glassLayer.addTo(map);
+    else map.removeLayer(glassLayer);
+  });
+
   const inRange = e => e.dateObj >= boundaries[lo] && e.dateObj < boundaries[hi];
 
   function popupHtml(g) {
