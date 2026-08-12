@@ -213,12 +213,25 @@
 
   const inRange = e => e.dateObj >= boundaries[lo] && e.dateObj < boundaries[hi];
 
+  /* Instagram-Glyph fürs Popup */
+  const IG_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="17.8" cy="6.2" r="1.3" class="ig-dot"/></svg>`;
+
   function popupHtml(g) {
     const visible = g.events.filter(inRange);
+    /* Foto des jüngsten sichtbaren Termins, der eins hat */
+    const shot = [...visible].reverse().find(e => e.photo && e.post);
+    const photo = shot ? `
+      <a class="popup-photo" href="${esc(shot.post)}" target="_blank" rel="noopener">
+        <img src="${esc(shot.photo)}" width="540" height="405" loading="lazy"
+             alt="Gruppenfoto vom Clean-Up am ${fmtDate(shot.dateObj)}">
+        <span class="popup-photo-cta">${IG_ICON}Auf Instagram ansehen</span>
+      </a>` : '';
     const rows = visible.map(e => `
       <div class="popup-date${e.isFuture ? ' future' : ''}"><i></i>${fmtDate(e.dateObj)}</div>
       ${e.note ? `<div class="popup-note">${esc(e.note)}</div>` : ''}`).join('');
-    return `<div class="popup-loc">${esc(visible[0]?.location ?? g.events[0].location)}</div>${rows}`;
+    return `${photo}<div class="popup-body">
+      <div class="popup-loc">${esc(visible[0]?.location ?? g.events[0].location)}</div>${rows}
+    </div>`;
   }
 
   function updateMap() {
@@ -231,7 +244,7 @@
       const anyFuture = visible.some(e => e.isFuture);
       marker.setStyle({ fillColor: anyFuture ? '#E2571B' : '#2F6B4F' });
       marker.setRadius(visible.length > 1 ? 11 : 9);
-      marker.bindPopup(popupHtml(group));
+      marker.bindPopup(popupHtml(group), { minWidth: 230, maxWidth: 260 });
       if (!map.hasLayer(marker)) marker.addTo(map);
     });
   }

@@ -592,7 +592,62 @@ aside {
   font-family: var(--body);
   color: var(--ink);
 }
-.leaflet-popup-content { margin: 0.8rem 1rem; line-height: 1.4; }
+.leaflet-popup-content { margin: 0; line-height: 1.4; }
+.popup-body { padding: 0.75rem 0.9rem 0.85rem; }
+
+/* Foto vom Clean-Up, verlinkt auf den Instagram-Beitrag */
+.popup-photo {
+  display: block;
+  position: relative;
+  line-height: 0;
+  text-decoration: none;
+}
+.popup-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px 6px 0 0;
+}
+.popup-photo-cta {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.6rem 0.7rem 0.5rem;
+  background: linear-gradient(to top, rgba(23, 40, 31, 0.82), rgba(23, 40, 31, 0));
+  color: #fff;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.popup-photo-cta svg {
+  width: 14px; height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+}
+.popup-photo-cta .ig-dot { fill: currentColor; stroke: none; }
+.popup-photo:hover .popup-photo-cta { background: linear-gradient(to top, rgba(226, 87, 27, 0.92), rgba(226, 87, 27, 0)); }
+
+/* Schließen-Kreuz bleibt auch über einem Foto lesbar */
+.leaflet-popup-close-button {
+  width: 22px !important;
+  height: 22px !important;
+  margin: 5px 5px 0 0;
+  border-radius: 50%;
+  background: rgba(251, 252, 250, 0.88) !important;
+  color: var(--ink) !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(28, 42, 35, 0.25);
+}
+.leaflet-popup-close-button:hover { background: #fff !important; }
 .popup-loc {
   font-family: var(--display);
   font-weight: 600;
