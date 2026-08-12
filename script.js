@@ -4,6 +4,9 @@
   /* ---------- Daten ---------- */
   const RAW = await fetch('termine.json').then(r => r.json());
 
+  const DEFAULT_TIME = '13:00';   // Uhrzeit, wenn im Termin kein "time" steht
+  const DURATION_MIN = 90;
+
   const parseDate = s => {
     const [y, m, d] = s.split('-').map(Number);
     return new Date(y, m - 1, d);
@@ -12,14 +15,109 @@
   today.setHours(0, 0, 0, 0);
 
   const events = RAW
-    .map(e => ({ ...e, dateObj: parseDate(e.date), isFuture: parseDate(e.date) > today }))
+    .map(e => ({ ...e, dateObj: parseDate(e.date), isFuture: parseDate(e.date) >= today }))
     .sort((a, b) => a.dateObj - b.dateObj);
 
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const MONTHS_SHORT = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const WEEKDAYS = ['So','Mo','Di','Mi','Do','Fr','Sa'];
-  const fmtDate = d => `${WEEKDAYS[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  const WEEKDAYS_LONG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const pad = n => String(n).padStart(2, '0');
+  const fmtDate = d => `${WEEKDAYS[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`;
   const fmtMonth = d => `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  const fmtLong = d => `${d.getDate()}. ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---------- Nächster Termin ---------- */
+  const upcoming = events.filter(e => e.isFuture);
+  const nextCard = document.getElementById('next-card');
+  const nextFollowing = document.getElementById('next-following');
+
+  function icsUrl(e) {
+    const [h, min] = (e.time ?? DEFAULT_TIME).split(':').map(Number);
+    const start = new Date(e.dateObj);
+    start.setHours(h, min, 0, 0);
+    const end = new Date(start.getTime() + DURATION_MIN * 60000);
+    const local = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+    const ical = s => String(s).replace(/([,;\\])/g, '\\$1').replace(/\n/g, '\\n');
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Muellwandern Muenster//Termine//DE',
+      'BEGIN:VEVENT',
+      `UID:${e.date}@muellwandern-muenster`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+      `DTSTART:${local(start)}`,
+      `DTEND:${local(end)}`,
+      'SUMMARY:Müllwandern Münster – Clean-Up',
+      `LOCATION:${ical(e.location)}`,
+      'DESCRIPTION:Greifzangen, Handschuhe und Säcke werden gestellt. Infos: instagram.com/muellwandern.muenster',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ];
+    return URL.createObjectURL(new Blob([lines.join('\r\n')], { type: 'text/calendar' }));
+  }
+
+  function renderNext() {
+    if (!upcoming.length) {
+      nextCard.innerHTML = '<p class="next-loading">Für die kommenden Monate steht noch kein Termin fest – schau auf Instagram vorbei.</p>';
+      return;
+    }
+    const e = upcoming[0];
+    const days = Math.round((e.dateObj - today) / 86400000);
+    const countdown = days === 0 ? 'heute' : days === 1 ? 'morgen' : `in ${days} Tagen`;
+    const time = e.time ?? DEFAULT_TIME;
+    const osm = e.lat != null
+      ? `https://www.openstreetmap.org/?mlat=${e.lat}&mlon=${e.lng}#map=18/${e.lat}/${e.lng}`
+      : null;
+
+    nextCard.innerHTML = `
+      <div class="next-date">
+        <span class="weekday">${WEEKDAYS_LONG[e.dateObj.getDay()]}</span>
+        <span class="day">${e.dateObj.getDate()}</span>
+        <span class="month">${MONTHS_SHORT[e.dateObj.getMonth()]} ${e.dateObj.getFullYear()}</span>
+      </div>
+      <div class="next-body">
+        <h3>${esc(e.location)}</h3>
+        <p class="next-meta">
+          <span>${time} Uhr</span><span>ca. ${DURATION_MIN} Minuten</span>
+          <span class="next-countdown">${countdown}</span>
+        </p>
+        ${e.note ? `<p class="next-note">${esc(e.note)}</p>` : ''}
+        <p>Greifzangen, Handschuhe und Müllsäcke bringen wir mit. Keine Anmeldung nötig – komm einfach dazu.</p>
+        <div class="next-actions">
+          <a class="btn btn-primary" href="#" data-ics>In den Kalender</a>
+          ${e.lat != null ? '<a class="btn" href="#karte" data-focus>Auf der Karte zeigen</a>' : ''}
+          ${osm ? `<a class="btn" href="${osm}" target="_blank" rel="noopener">Treffpunkt öffnen</a>` : ''}
+        </div>
+      </div>`;
+
+    const icsLink = nextCard.querySelector('[data-ics]');
+    icsLink.href = icsUrl(e);
+    icsLink.download = `muellwandern-${e.date}.ics`;
+
+    const focusLink = nextCard.querySelector('[data-focus]');
+    if (focusLink) {
+      focusLink.addEventListener('click', ev => {
+        ev.preventDefault();
+        focusEvent(e);
+      });
+    }
+
+    const following = upcoming.slice(1, 4);
+    if (following.length) {
+      nextFollowing.innerHTML = `Danach: <b>${following.map(f => esc(fmtLong(f.dateObj))).join(' · ')}</b>.`;
+    }
+  }
+
+  /* ---------- Zahlen ---------- */
+  const spots = new Set(events.filter(e => e.lat != null).map(e => `${e.lat},${e.lng}`));
+  const figure = (key, value) => {
+    const el = document.querySelector(`[data-figure="${key}"]`);
+    if (el) el.textContent = value;
+  };
+  figure('events', events.length);
+  figure('spots', spots.size);
 
   /* ---------- Zeitdomäne: Monatsgrenzen ---------- */
   const monthStart = d => new Date(d.getFullYear(), d.getMonth(), 1);
@@ -38,18 +136,36 @@
 
   /* Auswahl als Indizes in `boundaries` (lo inklusiv, hi exklusiv als Grenze) */
   const clampIdx = (i, min, max) => Math.max(min, Math.min(max, i));
-  const defaultLo = boundaries.findIndex(b => b.getTime() === monthStart(addMonths(today, -12)).getTime());
-  let lo = defaultLo >= 0 ? defaultLo : 0;
-  let hi = boundaries.length - 1;
+  const lastIdx = boundaries.length - 1;
+  const idxOfMonth = d => boundaries.findIndex(b => b.getTime() === monthStart(d).getTime());
+
+  /* Voreingestellte Zeiträume – die Schalter unter der Karte */
+  function presetRange(key) {
+    if (key === 'all') return [0, lastIdx];
+    if (key === 'next') {
+      const i = idxOfMonth(today);
+      return [i < 0 ? 0 : i, lastIdx];
+    }
+    const start = idxOfMonth(new Date(today.getFullYear(), 0, 1));
+    const end = idxOfMonth(new Date(today.getFullYear() + 1, 0, 1));
+    return [start < 0 ? 0 : start, end < 0 ? lastIdx : end];
+  }
+
+  let [lo, hi] = presetRange('year');
+  if (hi <= lo) [lo, hi] = presetRange('all');
 
   /* ---------- Karte ---------- */
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const map = L.map('map', { zoomControl: true }).setView([51.9607, 7.6261], 13);
+  const map = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([51.9607, 7.6261], 13);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19,
   }).addTo(map);
+
+  /* Mausrad zoomt erst nach einem Klick in die Karte – sonst würde Scrollen auf der Seite hängen bleiben */
+  map.on('click', () => map.scrollWheelZoom.enable());
+  map.getContainer().addEventListener('mouseleave', () => map.scrollWheelZoom.disable());
 
   /* Termine nach Ort gruppieren (gleiche Koordinaten = ein Marker) */
   const groups = new Map();
@@ -101,8 +217,8 @@
     const visible = g.events.filter(inRange);
     const rows = visible.map(e => `
       <div class="popup-date${e.isFuture ? ' future' : ''}"><i></i>${fmtDate(e.dateObj)}</div>
-      ${e.note ? `<div class="popup-note">${e.note}</div>` : ''}`).join('');
-    return `<div class="popup-loc">${visible[0]?.location ?? g.events[0].location}</div>${rows}`;
+      ${e.note ? `<div class="popup-note">${esc(e.note)}</div>` : ''}`).join('');
+    return `<div class="popup-loc">${esc(visible[0]?.location ?? g.events[0].location)}</div>${rows}`;
   }
 
   function updateMap() {
@@ -126,6 +242,22 @@
       if (group.events.some(inRange)) pts.push([group.lat, group.lon]);
     });
     if (pts.length) map.fitBounds(pts, { padding: [45, 45], animate: !reducedMotion });
+  }
+
+  /* Einen Termin sichtbar machen: Zeitraum ggf. aufziehen, hinscrollen, Popup öffnen */
+  function focusEvent(e) {
+    if (e.lat == null) return;
+    const idx = boundaries.findIndex(b => b.getTime() === monthStart(e.dateObj).getTime());
+    if (idx >= 0) {
+      lo = Math.min(lo, idx);
+      hi = Math.max(hi, idx + 1);
+      applySelection();
+    }
+    document.getElementById('karte').scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    const entry = markers.get(`${e.lat},${e.lng}`);
+    if (!entry) return;
+    map.flyTo([e.lat, e.lng], Math.max(map.getZoom(), 15), { animate: !reducedMotion, duration: 0.8 });
+    setTimeout(() => entry.marker.openPopup(), reducedMotion ? 0 : 600);
   }
 
   /* ---------- Liste ---------- */
@@ -163,8 +295,8 @@
       item.innerHTML = `
         <span class="dot"></span>
         <span class="date">${fmtDate(e.dateObj)}${e.isFuture ? '<span class="badge">geplant</span>' : ''}</span>
-        <span class="loc">${e.location}</span>
-        ${e.note ? `<span class="note">${e.note}</span>` : ''}`;
+        <span class="loc">${esc(e.location)}</span>
+        ${e.note ? `<span class="note">${esc(e.note)}</span>` : ''}`;
       if (e.lat != null) {
         item.addEventListener('click', () => {
           const entry = markers.get(`${e.lat},${e.lng}`);
@@ -193,7 +325,10 @@
     tick.className = 'tl-tick' + (b.getMonth() === 0 ? ' year' : '');
     tick.style.left = `${frac(b) * 100}%`;
     tl.appendChild(tick);
-    if (b.getMonth() === 0 || i === 0) {
+    /* Beschriftung: jeder Januar, dazu der Domänenanfang – außer er klebt am ersten Januar */
+    const firstJanuary = boundaries.find(x => x.getMonth() === 0);
+    const crowded = i === 0 && firstJanuary && frac(firstJanuary) - frac(b) < 0.05;
+    if ((b.getMonth() === 0 || i === 0) && !crowded) {
       const label = document.createElement('div');
       label.className = 'tl-tick-label';
       label.style.left = `${frac(b) * 100}%`;
@@ -251,10 +386,32 @@
     handleHi.setAttribute('aria-valuetext', fmtMonth(endMonth));
   }
 
+  /* ---------- Voreinstellungen ---------- */
+  const presetButtons = [...document.querySelectorAll('.preset')];
+  presetButtons.forEach(btn => {
+    if (btn.dataset.preset === 'year') btn.textContent = String(today.getFullYear());
+    if (btn.dataset.preset === 'all') btn.textContent = `Alle ${events.length}`;
+    btn.addEventListener('click', () => {
+      [lo, hi] = presetRange(btn.dataset.preset);
+      applySelection();
+      fitVisible();
+    });
+  });
+
+  function syncPresets() {
+    presetButtons.forEach(btn => {
+      const [pLo, pHi] = presetRange(btn.dataset.preset);
+      const active = pLo === lo && pHi === hi;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active);
+    });
+  }
+
   function applySelection() {
     renderTimeline();
     updateList();
     updateMap();
+    syncPresets();
   }
 
   const idxFromClientX = clientX => {
@@ -319,7 +476,24 @@
     windowEl.addEventListener('pointerup', up);
   });
 
+  /* ---------- Navigation: aktiven Abschnitt markieren ---------- */
+  const navLinks = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+  const sections = navLinks
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length) {
+    const seen = new Map();
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => seen.set(en.target.id, en.intersectionRatio));
+      let best = null, bestRatio = 0;
+      seen.forEach((ratio, id) => { if (ratio > bestRatio) { bestRatio = ratio; best = id; } });
+      navLinks.forEach(a => a.classList.toggle('current', best !== null && a.getAttribute('href') === `#${best}`));
+    }, { rootMargin: '-20% 0px -60% 0px', threshold: [0, 0.25, 0.5, 1] });
+    sections.forEach(s => io.observe(s));
+  }
+
   /* ---------- Start ---------- */
+  renderNext();
   applySelection();
   fitVisible();
   addEventListener('resize', () => map.invalidateSize());

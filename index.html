@@ -3,41 +3,319 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wanderkarte Münster – Termine</title>
+<title>Müllwandern Münster – Clean-Up jeden 2. Sonntag im Monat</title>
+<meta name="description" content="Einmal im Monat gehen wir gemeinsam durch Münster und sammeln ein, was liegen geblieben ist. Alle Termine, alle Treffpunkte, alles zum Mitmachen.">
+<meta name="theme-color" content="#F3F5F1">
+<meta property="og:title" content="Müllwandern Münster">
+<meta property="og:description" content="Jeden 2. Sonntag im Monat sammeln wir gemeinsam Müll in Münster. Komm einfach dazu.">
+<meta property="og:locale" content="de_DE">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%232F6B4F'/><circle cx='16' cy='13' r='4.5' fill='%23F3F5F1'/><path d='M16 18.5c-3 3.5-4.5 6-4.5 8h9c0-2-1.5-4.5-4.5-8z' fill='%23E2571B'/></svg>">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 <body>
 
-<header>
-  <h1>Wanderkarte</h1>
-  <span class="sub">Monatliche Treffpunkte in Münster</span>
-  <span class="count" id="count"></span>
+<a class="skip" href="#hero">Zum Inhalt springen</a>
+
+<nav class="nav">
+  <a class="nav-brand" href="#hero">
+    <span class="nav-mark" aria-hidden="true"></span>
+    Müllwandern&nbsp;Münster
+  </a>
+  <div class="nav-links">
+    <a href="#termin">Nächster Termin</a>
+    <a href="#ablauf">Ablauf</a>
+    <a href="#karte">Karte</a>
+    <a href="#mitmachen">Mitmachen</a>
+    <a href="#team">Team</a>
+    <a class="nav-cta" href="https://www.instagram.com/muellwandern.muenster/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+</nav>
+
+<!-- ---------- Hero ---------- -->
+<header class="hero" id="hero">
+  <div class="hero-text">
+    <p class="kicker">Seit Dezember 2020 · Münster</p>
+    <h1>Müllwandern<br>Münster</h1>
+    <p class="claim">„Nicht mein Müll, aber meine Stadt.“</p>
+    <p class="lead">
+      Jeden zweiten Sonntag im Monat treffen wir uns an einem wechselnden Ort in der Stadt,
+      laufen rund 90 Minuten durchs Viertel und sammeln ein, was liegen geblieben ist.
+      Greifzangen, Handschuhe und Säcke bringen wir mit – du brauchst nur vorbeizukommen.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#termin">Nächster Termin</a>
+      <a class="btn" href="#karte">Alle Treffpunkte auf der Karte</a>
+    </div>
+    <p class="hero-tag">#MüllwandernMünster</p>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <svg viewBox="0 0 320 320" fill="none">
+      <path class="art-path" d="M40 280 C 40 210, 120 220, 120 170 S 60 120, 90 70 S 200 60, 230 100 S 250 190, 280 210"
+            stroke="currentColor" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"/>
+      <g class="art-litter">
+        <circle cx="150" cy="255" r="3.5"/>
+        <circle cx="196" cy="232" r="2.5"/>
+        <circle cx="172" cy="286" r="2.5"/>
+        <circle cx="264" cy="264" r="3"/>
+        <circle cx="118" cy="120" r="2.5"/>
+        <circle cx="188" cy="160" r="3"/>
+        <circle cx="62" cy="180" r="2.5"/>
+      </g>
+      <g class="art-pin" transform="translate(90 70)">
+        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
+        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
+      </g>
+      <g class="art-pin" transform="translate(230 100)">
+        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
+        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
+      </g>
+      <g class="art-pin art-pin-next" transform="translate(40 280)">
+        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
+        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
+      </g>
+    </svg>
+  </div>
 </header>
 
-<main>
-  <aside id="list"></aside>
-  <div id="map"></div>
-</main>
+<!-- ---------- Nächster Termin ---------- -->
+<section class="section section-accent" id="termin">
+  <div class="wrap">
+    <h2 class="section-title">Der nächste Clean-Up</h2>
+    <div class="next-card" id="next-card">
+      <p class="next-loading">Termine werden geladen …</p>
+    </div>
+    <p class="next-hint">
+      <span id="next-following"></span>
+      Uhrzeiten können abweichen – jeder Termin wird vorher auf Instagram angekündigt.
+    </p>
+  </div>
+</section>
 
-<footer>
-  <div class="tl-head">
-    <span class="range-label" id="range-label"></span>
-    <div class="legend">
-      <span class="l-past"><i></i>vergangen</span>
-      <span class="l-future"><i></i>geplant</span>
-      <label class="l-glass"><input type="checkbox" id="glass-toggle"><i></i>Altglascontainer</label>
+<!-- ---------- Ablauf ---------- -->
+<section class="section" id="ablauf">
+  <div class="wrap">
+    <h2 class="section-title">So läuft ein Clean-Up</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-no">01</span>
+        <h3>Ankommen</h3>
+        <p>Wir treffen uns am angekündigten Treffpunkt – meistens an einem Altglascontainer, gut mit Rad und Bus erreichbar. Kurze Begrüßung, Zangen und Säcke verteilen, los geht’s.</p>
+      </li>
+      <li>
+        <span class="step-no">02</span>
+        <h3>Sammeln</h3>
+        <p>In kleinen Grüppchen ziehen wir durchs Viertel: Grünstreifen, Spielplätze, Uferwege, Parkplätze. Etwa 90 Minuten, in gemütlichem Tempo, mit viel Gerede zwischendurch.</p>
+      </li>
+      <li>
+        <span class="step-no">03</span>
+        <h3>Abgeben</h3>
+        <p>Die vollen Säcke kommen zurück zum Treffpunkt. Von dort wird der gesammelte Müll abgeholt – wir müssen ihn also nicht durch die halbe Stadt tragen.</p>
+      </li>
+      <li>
+        <span class="step-no">04</span>
+        <h3>Ausklingen</h3>
+        <p>Zum Schluss schauen wir, was für kuriose Funde dabei waren, und lassen den Vormittag zusammen ausklingen – im Dezember traditionell mit Glühwein.</p>
+      </li>
+    </ol>
+    <blockquote class="pull">
+      Der Ozean beginnt nicht am Meer.<br>Er beginnt hier.
+    </blockquote>
+  </div>
+</section>
+
+<!-- ---------- Karte ---------- -->
+<section class="section section-map" id="karte">
+  <div class="wrap">
+    <h2 class="section-title">Wo wir schon waren</h2>
+    <p class="section-lead">
+      Jeder Punkt ist ein Treffpunkt: Grün steht für vergangene Clean-Ups, Orange für geplante.
+      Unter der Karte lässt sich der Zeitraum umschalten – Liste und Karte passen sich an.
+    </p>
+  </div>
+  <div class="wrap wrap-wide">
+    <div class="map-app">
+      <div class="map-app-body">
+        <aside id="list"></aside>
+        <div id="map"></div>
+      </div>
+      <div class="map-app-foot">
+        <div class="tl-controls">
+          <div class="presets" role="group" aria-label="Zeitraum wählen">
+            <button type="button" class="preset" data-preset="next">Nächste Termine</button>
+            <button type="button" class="preset" data-preset="year">Dieses Jahr</button>
+            <button type="button" class="preset" data-preset="all">Alle</button>
+          </div>
+          <span class="count" id="count"></span>
+          <div class="legend">
+            <span class="l-past"><i></i>vergangen</span>
+            <span class="l-future"><i></i>geplant</span>
+            <label class="l-glass"><input type="checkbox" id="glass-toggle"><i></i>Altglascontainer</label>
+          </div>
+        </div>
+        <details class="tl-details">
+          <summary>Zeitraum feiner wählen</summary>
+          <div class="tl-head">
+            <span class="range-label" id="range-label"></span>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </details>
+      </div>
     </div>
   </div>
-  <div class="timeline" id="timeline"></div>
+</section>
+
+<!-- ---------- Zahlen ---------- -->
+<section class="section section-figures">
+  <div class="wrap">
+    <ul class="figures">
+      <li><strong data-figure="events">–</strong><span>dokumentierte Termine</span></li>
+      <li><strong data-figure="spots">–</strong><span>verschiedene Treffpunkte</span></li>
+      <li><strong>12×</strong><span>im Jahr, jeden 2. Sonntag</span></li>
+      <li><strong>~90</strong><span>Minuten pro Runde</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ---------- Mitmachen ---------- -->
+<section class="section" id="mitmachen">
+  <div class="wrap">
+    <h2 class="section-title">Mitmachen</h2>
+    <p class="section-lead">
+      Es gibt keine Mitgliedschaft und keine Anmeldung. Wer Lust hat, kommt vorbei – einmal, jeden Monat oder immer dann,
+      wenn der Treffpunkt gerade um die Ecke liegt. Egal, ob zum ersten Mal oder zum dreißigsten Mal: Jede helfende Hand zählt.
+    </p>
+    <div class="cols">
+      <div class="card">
+        <h3>Wir bringen mit</h3>
+        <ul class="ticks">
+          <li>Greifzangen zum Ausleihen</li>
+          <li>Handschuhe</li>
+          <li>Müllsäcke für die Funde</li>
+          <li>Leute, die auch zum ersten Mal da sind</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Bring mit</h3>
+        <ul class="ticks">
+          <li>Festes Schuhwerk und wetterfeste Kleidung</li>
+          <li>Gerne Kinder, Freund:innen, Nachbarschaft</li>
+          <li>Gute Laune</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Gut zu wissen</h3>
+        <ul class="ticks">
+          <li>Wir sammeln bei fast jedem Wetter</li>
+          <li>Bei Unwetter oder Hitzewarnung sagen wir auf Instagram ab</li>
+          <li>Los geht es pünktlich, dazustoßen geht trotzdem</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>Muss ich mich anmelden?</summary>
+        <p>Nein. Komm einfach zum Treffpunkt – eine kurze Nachricht auf Instagram freut uns, ist aber keine Bedingung.</p>
+      </details>
+      <details>
+        <summary>Kostet das etwas?</summary>
+        <p>Nein. Zangen, Handschuhe und Säcke werden gestellt, alles andere ist deine Zeit.</p>
+      </details>
+      <details>
+        <summary>Kann ich Kinder mitbringen?</summary>
+        <p>Sehr gerne. Kinder finden erfahrungsgemäß am meisten – und die spannendsten Sachen.</p>
+      </details>
+      <details>
+        <summary>Ich kenne einen Ort, an dem dringend gesammelt werden müsste.</summary>
+        <p>Schreib uns! Die Treffpunkte wechseln jeden Monat, und Vorschläge aus den Vierteln sind ausdrücklich willkommen.</p>
+      </details>
+      <details>
+        <summary>Warum treffen wir uns so oft an Altglascontainern?</summary>
+        <p>Sie sind leicht zu finden, es gibt sie in jedem Viertel – und drumherum liegt fast immer etwas. Auf der <a href="#karte">Karte</a> lassen sich alle Container der Stadt einblenden.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- Team ----------
+     Beschreibungstexte sind ein Vorschlag und gehören gegengelesen; Fotos fehlen noch
+     (avatar-Kreise durch <img src="..." alt="..."> ersetzen). -->
+<section class="section section-team" id="team">
+  <div class="wrap">
+    <h2 class="section-title">Wer dahintersteckt</h2>
+    <p class="section-lead">
+      Müllwandern Münster ist kein Verein und keine Firma, sondern eine Handvoll Leute, die es schade fanden,
+      dass so viel Müll herumliegt – und dann angefangen haben, ihn einzusammeln.
+    </p>
+    <div class="people">
+      <article class="person">
+        <span class="avatar" aria-hidden="true">K</span>
+        <h3>Klara</h3>
+        <p class="role">Hauptverantwortlich</p>
+        <p>Plant die Termine, sucht die Treffpunkte aus, kündigt alles auf Instagram an – und steht sonntags als Erste da.</p>
+        <p class="photo-hint">Foto kommt noch</p>
+      </article>
+      <article class="person">
+        <span class="avatar" aria-hidden="true">F</span>
+        <h3>Falko</h3>
+        <p class="role">Orga &amp; Karte</p>
+        <p>Kümmert sich um diese Seite und die Terminkarte, packt beim Sammeln mit an und hält die Termine aktuell.</p>
+        <p class="photo-hint">Foto kommt noch</p>
+      </article>
+      <article class="person person-join">
+        <span class="avatar avatar-empty" aria-hidden="true">+</span>
+        <h3>Du?</h3>
+        <p class="role">Verstärkung gesucht</p>
+        <p>Unsere Clean-Ups wachsen und damit auch die Ideen, was wir bewegen können. Wer mitdenken, mitorganisieren oder einfach mit anpacken möchte, ist willkommen.</p>
+        <a class="btn btn-small" href="mailto:muellwandern.muenster@gmail.com?subject=Ich%20m%C3%B6chte%20im%20Team%20mitmachen">Schreib uns</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- Kontakt ---------- -->
+<section class="section section-contact" id="kontakt">
+  <div class="wrap contact">
+    <div>
+      <h2 class="section-title">Sag Hallo</h2>
+      <p class="section-lead">
+        Termine, Treffpunkte und Bilder von den Clean-Ups gibt es auf Instagram.
+        Für alles andere – Fragen, Ortsvorschläge, Kooperationen – schreib uns eine Mail.
+      </p>
+      <p class="partner">
+        Wir sind Teil der <a href="https://awm.stadt-muenster.de/stadtsauberkeit/sauberkeitspatenschaften" target="_blank" rel="noopener">Sauberkeits-Patenschaften der AWM</a>
+        und unterstützen <a href="https://www.instagram.com/kronkorken.muenster/" target="_blank" rel="noopener">@kronkorken.muenster</a>.
+      </p>
+    </div>
+    <div class="contact-links">
+      <a class="btn btn-primary" href="https://www.instagram.com/muellwandern.muenster/" target="_blank" rel="noopener">Auf Instagram folgen</a>
+      <a class="btn" href="mailto:muellwandern.muenster@gmail.com">Mail schreiben</a>
+      <p class="contact-mail">muellwandern.muenster@gmail.com</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <p class="foot-claim">Helfen macht glücklich.</p>
+    <p>
+      Termine und Treffpunkte stammen aus den Ankündigungen auf Instagram; einzelne ältere Koordinaten sind
+      auf das genannte Viertel geschätzt. Kartendaten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende,
+      Kacheln © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>.
+      Standorte der Altglascontainer: Stadt Münster.
+    </p>
+    <!-- TODO: Impressum und Datenschutzerklärung ergänzen (für öffentliche Seiten in Deutschland Pflicht). -->
+  </div>
 </footer>
 
 <!-- Termine liegen in termine.json und werden von script.js geladen.
      Zum Aktualisieren nur die JSON editieren.
+     Felder: date (Pflicht), location (Pflicht), time, note, lat, lng.
      Einträge ohne lat/lng erscheinen nur in der Liste, nicht auf der Karte.
      Hinweis: lokal per HTTP-Server öffnen (z. B. `python3 -m http.server`),
      da fetch() bei file://-URLs blockiert wird. -->
-<script src="script.js"></script>
 </body>
 </html>
