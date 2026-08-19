@@ -758,19 +758,6 @@ aside {
 .faq details[open] summary::after { content: "–"; }
 .faq p { padding: 0 0 1.1rem; color: var(--muted); font-size: 0.95rem; max-width: 70ch; }
 
-/* ---------- Impressum & Datenschutz ---------- */
-.section-legal { background: var(--panel); border-top: 1px solid var(--line); }
-.faq.legal { margin-top: 1.6rem; max-width: 72ch; }
-.legal-body { padding-bottom: 1.4rem; }
-.legal-body h3 {
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  margin: 1.1rem 0 0.35rem;
-}
-.legal-body h3:first-child { margin-top: 0; }
-.legal-body p { padding: 0; font-size: 0.9rem; max-width: none; }
-.legal-body p + p { margin-top: 0.5rem; }
-.legal-body address { font-style: normal; color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
 
 /* ---------- Team ---------- */
 .people {
@@ -853,8 +840,55 @@ aside {
   letter-spacing: 0.06em;
   color: var(--paper);
 }
-.foot-links a { text-decoration: none; border-bottom: 1px solid rgba(243, 245, 241, 0.35); }
-.foot-links a:hover { color: var(--paper); border-bottom-color: var(--paper); }
+
+/* Impressum & Datenschutz: klappen im Footer unter der Linkzeile aus.
+   Ohne JS öffnet :target den per Anker angesprungenen Block; mit JS (html.js) schaltet script.js das hidden-Attribut. */
+.foot-links a {
+  text-decoration: none;
+  border-bottom: 1px solid rgba(243, 245, 241, 0.35);
+}
+.foot-links a:hover, .foot-links a[aria-expanded="true"] { color: var(--paper); border-bottom-color: var(--paper); }
+.legal-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  max-width: 72ch;
+  transition: grid-template-rows 420ms ease;
+}
+.legal-inner {
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 420ms, opacity 300ms ease;
+  color: rgba(243, 245, 241, 0.7);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+.legal-inner::before {
+  content: "";
+  display: block;
+  margin-top: 0.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(243, 245, 241, 0.15);
+}
+.legal-inner::after { content: ""; display: block; height: 0.4rem; }
+.legal-body.is-open,
+html:not(.js) .legal-body:target { grid-template-rows: 1fr; }
+.legal-body.is-open > .legal-inner,
+html:not(.js) .legal-body:target > .legal-inner {
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 300ms ease 120ms;
+}
+.legal-body h3 {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  color: var(--paper);
+  margin: 1rem 0 0.3rem;
+}
+.legal-body h3:first-child { margin-top: 0; }
+.legal-body p + p { margin-top: 0.5rem; }
+.legal-body address { font-style: normal; margin-bottom: 0.5rem; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

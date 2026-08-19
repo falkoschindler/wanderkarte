@@ -61,5 +61,5 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 Ein neuer Termin ist ein neuer Eintrag in `termine.json`;
 Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
 
-Impressum und Datenschutzerklärung stehen als aufklappbarer Abschnitt am Seitenende (`#impressum`, `#datenschutz`).
+Impressum und Datenschutzerklärung klappen im Footer aus (`#impressum`, `#datenschutz`).
 Der Hosting-Absatz beschreibt All-Inkl (Ziel-Domain); die GitHub-Pages-Vorschau ist davon nicht erfasst.

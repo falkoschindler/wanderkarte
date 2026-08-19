@@ -1,3 +1,5 @@
+document.documentElement.classList.add('js');
+
 (async () => {
   'use strict';
 
@@ -505,13 +507,33 @@
     sections.forEach(s => io.observe(s));
   }
 
-  /* ---------- Impressum/Datenschutz per Anker aufklappen ---------- */
-  const openLegal = () => {
-    const el = document.getElementById(location.hash.slice(1));
-    if (el && el.tagName === 'DETAILS') el.open = true;
+  /* ---------- Impressum/Datenschutz im Footer auf- und zuklappen ---------- */
+  const legalLinks = [...document.querySelectorAll('.foot-links a[aria-controls]')];
+  const setLegal = (id, open) => {
+    legalLinks.forEach(a => {
+      const panel = document.getElementById(a.getAttribute('aria-controls'));
+      const on = open && a.getAttribute('aria-controls') === id;
+      panel.classList.toggle('is-open', on);
+      a.setAttribute('aria-expanded', String(on));
+    });
   };
-  openLegal();
-  window.addEventListener('hashchange', openLegal);
+  // Nach dem Aufklappen den Block ins Bild holen – der Footer wächst sonst unsichtbar nach unten
+  document.querySelectorAll('.legal-body').forEach(panel => panel.addEventListener('transitionend', ev => {
+    if (ev.target === panel && panel.classList.contains('is-open')) {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }));
+  legalLinks.forEach(a => a.addEventListener('click', ev => {
+    ev.preventDefault();
+    const id = a.getAttribute('aria-controls');
+    setLegal(id, a.getAttribute('aria-expanded') !== 'true');
+  }));
+  const openLegalFromHash = () => {
+    const id = location.hash.slice(1);
+    if (legalLinks.some(a => a.getAttribute('aria-controls') === id)) setLegal(id, true);
+  };
+  openLegalFromHash();
+  window.addEventListener('hashchange', openLegalFromHash);
 
   /* ---------- Start ---------- */
   renderNext();
