@@ -505,6 +505,14 @@
     sections.forEach(s => io.observe(s));
   }
 
+  /* ---------- Impressum/Datenschutz per Anker aufklappen ---------- */
+  const openLegal = () => {
+    const el = document.getElementById(location.hash.slice(1));
+    if (el && el.tagName === 'DETAILS') el.open = true;
+  };
+  openLegal();
+  window.addEventListener('hashchange', openLegal);
+
   /* ---------- Start ---------- */
   renderNext();
   applySelection();

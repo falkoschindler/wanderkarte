@@ -54,6 +54,12 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`termine.json`](termine.json) | Alle Clean-Ups: `date`, `location`, `lat`/`lng`, optional `note` |
 | [`glascontainer.json`](glascontainer.json) | Altglascontainer als zuschaltbare Kartenebene: `lat`/`lng`, `ort`, `viertel` |
 | [`bilder/`](bilder/) | Fotos der letzten Clean-Ups, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
+| [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
+| [`landing/index.html`](landing/index.html) | Platzhalter-Landingpage für die Domain (siehe oben) |
+| [`TODO.md`](TODO.md) | Offene Punkte vor dem Live-Gang der Hauptseite |
 
 Ein neuer Termin ist ein neuer Eintrag in `termine.json`;
 Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
+
+Impressum und Datenschutzerklärung stehen als aufklappbarer Abschnitt am Seitenende (`#impressum`, `#datenschutz`).
+Der Hosting-Absatz beschreibt All-Inkl (Ziel-Domain); die GitHub-Pages-Vorschau ist davon nicht erfasst.

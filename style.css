@@ -758,6 +758,20 @@ aside {
 .faq details[open] summary::after { content: "–"; }
 .faq p { padding: 0 0 1.1rem; color: var(--muted); font-size: 0.95rem; max-width: 70ch; }
 
+/* ---------- Impressum & Datenschutz ---------- */
+.section-legal { background: var(--panel); border-top: 1px solid var(--line); }
+.faq.legal { margin-top: 1.6rem; max-width: 72ch; }
+.legal-body { padding-bottom: 1.4rem; }
+.legal-body h3 {
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  margin: 1.1rem 0 0.35rem;
+}
+.legal-body h3:first-child { margin-top: 0; }
+.legal-body p { padding: 0; font-size: 0.9rem; max-width: none; }
+.legal-body p + p { margin-top: 0.5rem; }
+.legal-body address { font-style: normal; color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+
 /* ---------- Team ---------- */
 .people {
   display: grid;
@@ -839,6 +853,8 @@ aside {
   letter-spacing: 0.06em;
   color: var(--paper);
 }
+.foot-links a { text-decoration: none; border-bottom: 1px solid rgba(243, 245, 241, 0.35); }
+.foot-links a:hover { color: var(--paper); border-bottom-color: var(--paper); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
