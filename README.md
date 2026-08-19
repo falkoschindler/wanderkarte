@@ -29,6 +29,19 @@ Kurz zum Hintergrund, damit die Entscheidung nachvollziehbar bleibt:
 Nicht abgedeckt: die Seite bleibt für jeden erreichbar, der die URL kennt,
 und die Repo-Seite auf github.com selbst kann weiterhin indexiert werden.
 
+## Landingpage (Platzhalter)
+
+Unter <https://muellwandern-muenster.de/> liegt vorerst nur [`landing/index.html`](landing/index.html):
+eine einzelne, statische Datei mit dem nächsten Clean-Up, den restlichen Terminen des Jahres und Links zu Instagram und Mail.
+Schriften (Fredoka, Bebas Neue – SIL Open Font License) und das Instagram-Logo sind als data-URIs eingebettet,
+die Seite braucht also keine weiteren Dateien und keinen externen Font-Server.
+
+Termine stehen dort zweimal – in der HTML-Liste und im `<script>` –
+und werden nicht aus `termine.json` gelesen; beim Nachtragen beide Stellen pflegen.
+Vergangene Termine blendet die Seite selbst aus, gibt es keine kommenden mehr, verweist sie auf Instagram.
+Impressum und Datenschutzerklärung stecken als aufklappbare Abschnitte in derselben Datei (`#impressum`, `#datenschutz`).
+Sobald die Hauptseite fertig ist, ersetzt sie die Landingpage (dann `noindex` entfernen, siehe oben).
+
 ## Aufbau
 
 Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Browser öffnen.
