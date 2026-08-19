@@ -7,11 +7,11 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Müllwandern Münster – Clean-Up jeden 2. Sonntag im Monat</title>
 <meta name="description" content="Einmal im Monat gehen wir gemeinsam durch Münster und sammeln ein, was liegen geblieben ist. Alle Termine, alle Treffpunkte, alles zum Mitmachen.">
-<meta name="theme-color" content="#F3F5F1">
+<meta name="theme-color" content="#127354">
 <meta property="og:title" content="Müllwandern Münster">
 <meta property="og:description" content="Jeden 2. Sonntag im Monat sammeln wir gemeinsam Müll in Münster. Komm einfach dazu.">
 <meta property="og:locale" content="de_DE">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%232F6B4F'/><circle cx='16' cy='13' r='4.5' fill='%23F3F5F1'/><path d='M16 18.5c-3 3.5-4.5 6-4.5 8h9c0-2-1.5-4.5-4.5-8z' fill='%23E2571B'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23127354'/><path d='M16.5 23c-1-6 1-11 6.5-13-1.5 6.5-3.5 10-6.5 13z' fill='%23fff'/><path d='M15.5 23c.5-4.5-1.5-8-5.5-9 1.5 4.5 3 7 5.5 9z' fill='%23fff'/></svg>">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="style.css">
 <script src="vendor/leaflet/leaflet.js" defer></script>
@@ -23,7 +23,7 @@
 
 <nav class="nav">
   <a class="nav-brand" href="#hero">
-    <span class="nav-mark" aria-hidden="true"></span>
+    <img class="nav-mark" src="grafik/logo.svg" alt="" aria-hidden="true">
     Müllwandern&nbsp;Münster
   </a>
   <div class="nav-links">
@@ -36,49 +36,34 @@
   </div>
 </nav>
 
-<!-- ---------- Hero ---------- -->
+<!-- ---------- Hero ----------
+     Logo und Müll-Illustrationen stammen aus dem Flyer (grafik/*.svg, als Vektoren aus dem PDF übernommen). -->
 <header class="hero" id="hero">
-  <div class="hero-text">
-    <p class="kicker">Seit Dezember 2020 · Münster</p>
-    <h1>Müllwandern<br>Münster</h1>
-    <p class="claim">„Nicht mein Müll, aber meine Stadt.“</p>
-    <p class="lead">
-      Jeden zweiten Sonntag im Monat treffen wir uns an einem wechselnden Ort in der Stadt,
-      laufen rund 90 Minuten durchs Viertel und sammeln ein, was liegen geblieben ist.
-      Greifzangen, Handschuhe und Säcke bringen wir mit – du brauchst nur vorbeizukommen.
-    </p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="#termin">Nächster Termin</a>
-      <a class="btn" href="#karte">Alle Treffpunkte auf der Karte</a>
+  <img class="litter litter-bottle" src="grafik/bottle.svg" alt="" aria-hidden="true">
+  <img class="litter litter-shards" src="grafik/shards.svg" alt="" aria-hidden="true">
+  <img class="litter litter-bag" src="grafik/bag.svg" alt="" aria-hidden="true">
+  <img class="litter litter-banana" src="grafik/banana.svg" alt="" aria-hidden="true">
+  <img class="litter litter-caps" src="grafik/caps.svg" alt="" aria-hidden="true">
+  <img class="litter litter-can" src="grafik/can.svg" alt="" aria-hidden="true">
+  <img class="litter litter-paper" src="grafik/paper.svg" alt="" aria-hidden="true">
+  <img class="litter litter-straw" src="grafik/straw.svg" alt="" aria-hidden="true">
+  <img class="litter litter-butt" src="grafik/butt.svg" alt="" aria-hidden="true">
+  <div class="hero-inner">
+    <div>
+      <p class="kicker">Clean-Up · jeden zweiten Sonntag im Monat</p>
+      <p class="claim">Nicht mein Müll.<br><span class="claim-alt">Aber meine Stadt.</span></p>
+      <p class="lead">
+        Jeden zweiten Sonntag im Monat treffen wir uns an einem wechselnden Ort in Münster,
+        laufen rund 90 Minuten durchs Viertel und sammeln ein, was liegen geblieben ist.
+        Greifzangen, Handschuhe und Säcke bringen wir mit – du brauchst nur vorbeizukommen.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#termin">Nächster Termin</a>
+        <a class="btn" href="#karte">Alle Treffpunkte auf der Karte</a>
+      </div>
+      <p class="hero-tag">Gemeinsam draußen. Gemeinsam wirksam.</p>
     </div>
-    <p class="hero-tag">#MüllwandernMünster</p>
-  </div>
-  <div class="hero-art" aria-hidden="true">
-    <svg viewBox="0 0 320 320" fill="none">
-      <path class="art-path" d="M40 280 C 40 210, 120 220, 120 170 S 60 120, 90 70 S 200 60, 230 100 S 250 190, 280 210"
-            stroke="currentColor" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round"/>
-      <g class="art-litter">
-        <circle cx="150" cy="255" r="3.5"/>
-        <circle cx="196" cy="232" r="2.5"/>
-        <circle cx="172" cy="286" r="2.5"/>
-        <circle cx="264" cy="264" r="3"/>
-        <circle cx="118" cy="120" r="2.5"/>
-        <circle cx="188" cy="160" r="3"/>
-        <circle cx="62" cy="180" r="2.5"/>
-      </g>
-      <g class="art-pin" transform="translate(90 70)">
-        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
-        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
-      </g>
-      <g class="art-pin" transform="translate(230 100)">
-        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
-        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
-      </g>
-      <g class="art-pin art-pin-next" transform="translate(40 280)">
-        <path d="M0 14c-7-8-11-13-11-19a11 11 0 1 1 22 0c0 6-4 11-11 19z"/>
-        <circle cx="0" cy="-5" r="4" class="art-pin-eye"/>
-      </g>
-    </svg>
+    <h1 class="hero-logo"><img src="grafik/logo.svg" alt="Müllwandern Münster" width="272" height="272"></h1>
   </div>
 </header>
 
@@ -123,7 +108,7 @@
       </li>
     </ol>
     <blockquote class="pull">
-      Der Ozean beginnt nicht am Meer.<br>Er beginnt hier.
+      Seid dabei, um Münster zu einem saubereren, grüneren und gesünderen Ort für Mensch und Tier zu machen!
     </blockquote>
   </div>
 </section>
@@ -133,7 +118,7 @@
   <div class="wrap">
     <h2 class="section-title">Wo wir schon waren</h2>
     <p class="section-lead">
-      Jeder Punkt ist ein Treffpunkt: Grün steht für vergangene Clean-Ups, Orange für geplante.
+      Jeder Punkt ist ein Treffpunkt: Grün steht für vergangene Clean-Ups, Rot für geplante.
       Unter der Karte lässt sich der Zeitraum umschalten – Liste und Karte passen sich an.
     </p>
   </div>
@@ -298,11 +283,26 @@
       <p class="contact-mail">muellwandern.muenster@gmail.com</p>
     </div>
   </div>
+  <div class="wrap">
+    <div class="support">
+      <img src="grafik/can.svg" alt="" aria-hidden="true">
+      <div>
+        <h3>Du hast ein Café oder einen Kiosk?</h3>
+        <p>
+          Du möchtest unsere Aktionen z.&nbsp;B. mit Getränken oder Snacks versorgen – oder hast andere unterstützende Ideen?
+          Dann melde dich gern bei uns: <a href="mailto:muellwandern.muenster@gmail.com?subject=Unterst%C3%BCtzung%20f%C3%BCr%20M%C3%BCllwandern%20M%C3%BCnster">muellwandern.muenster@gmail.com</a>
+        </p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer class="foot">
   <div class="wrap foot-inner">
-    <p class="foot-claim">Helfen macht glücklich.</p>
+    <div class="foot-brand">
+      <img src="grafik/logo.svg" alt="" aria-hidden="true" width="64" height="64">
+      <p class="foot-claim">Nicht mein Müll. Aber meine Stadt.<small>Gemeinsam draußen. Gemeinsam wirksam.</small></p>
+    </div>
     <p>
       Termine und Treffpunkte stammen aus den Ankündigungen auf Instagram; einzelne ältere Koordinaten sind
       auf das genannte Viertel geschätzt. Kartendaten © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-Mitwirkende,

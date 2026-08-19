@@ -183,7 +183,7 @@ document.documentElement.classList.add('js');
     const marker = L.circleMarker([g.lat, g.lon], {
       radius: 9,
       weight: 2.5,
-      color: '#FBFCFA',
+      color: '#FFFFFF',
       fillOpacity: 0.95,
     });
     marker.on('popupopen', () => setActiveListItem(g.events.filter(inRange)[0]));
@@ -202,10 +202,12 @@ document.documentElement.classList.add('js');
       const containers = await fetch('glascontainer.json').then(r => r.json());
       containers.forEach(c => L.circleMarker([c.lat, c.lng], {
         pane: 'glass',
-        radius: 4,
-        stroke: false,
-        fillColor: '#4A7FA5',
-        fillOpacity: 0.65,
+        radius: 4.5,
+        weight: 1,
+        color: '#2F2A27',
+        opacity: 0.45,
+        fillColor: '#E8B1F8',
+        fillOpacity: 0.9,
       }).bindTooltip(`${c.ort} (${c.viertel})`, { direction: 'top', offset: [0, -4] })
         .addTo(glassLayer));
     }
@@ -244,7 +246,7 @@ document.documentElement.classList.add('js');
         return;
       }
       const anyFuture = visible.some(e => e.isFuture);
-      marker.setStyle({ fillColor: anyFuture ? '#E2571B' : '#2F6B4F' });
+      marker.setStyle({ fillColor: anyFuture ? '#F66C72' : '#127354' });
       marker.setRadius(visible.length > 1 ? 11 : 9);
       marker.bindPopup(popupHtml(group), { minWidth: 230, maxWidth: 260 });
       if (!map.hasLayer(marker)) marker.addTo(map);

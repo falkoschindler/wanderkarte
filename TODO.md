@@ -18,5 +18,6 @@ die Hauptseite wartet noch auf Feinschliff.
 
 ## Design / Feinschliff
 
-- [ ] Hauptseite optisch an Landingpage/Instagram angleichen (Farben, Schriften).
+- [x] Hauptseite optisch an CI/Flyer angleichen (Farben, Schriften, Logo, Illustrationen).
+- [ ] Landingpage auf das SVG-Logo umstellen (aktuell noch JPEG als data-URI).
 - [ ] Fotos für Hero und Ablauf-Abschnitt.

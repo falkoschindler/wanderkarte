@@ -54,6 +54,8 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`termine.json`](termine.json) | Alle Clean-Ups: `date`, `location`, `lat`/`lng`, optional `note` |
 | [`glascontainer.json`](glascontainer.json) | Altglascontainer als zuschaltbare Kartenebene: `lat`/`lng`, `ort`, `viertel` |
 | [`bilder/`](bilder/) | Fotos der letzten Clean-Ups, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
+| [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten) |
+| [`fonts/`](fonts/) | Fredoka und Bebas Neue als WOFF2 (SIL Open Font License), lokal eingebunden |
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
 | [`landing/index.html`](landing/index.html) | Platzhalter-Landingpage für die Domain (siehe oben) |
 | [`TODO.md`](TODO.md) | Offene Punkte vor dem Live-Gang der Hauptseite |
@@ -62,4 +64,17 @@ Ein neuer Termin ist ein neuer Eintrag in `termine.json`;
 Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
 
 Impressum und Datenschutzerklärung klappen im Footer aus (`#impressum`, `#datenschutz`).
+
+## Design
+
+Farben und Schriften folgen der Corporate Identity (`MuellWandern_CI.pdf`):
+Grün `#127354`, Salbei `#a7c5a3`, Weiß, Coral `#f66c72`, Peach `#f1a97c`, Purple `#e8b1f8`;
+dazu als Flächenfarbe das Creme des Flyers (`#FBF7E6`).
+Alle Werte stehen als CSS-Variablen am Anfang von [`style.css`](style.css).
+Überschriften in Fredoka (passt zur Logoschrift), Kicker, Daten und Labels in Bebas Neue wie auf dem Flyer.
+
+Logo und Müll-Illustrationen in [`grafik/`](grafik/) sind Vektoren aus `MuellWandern_MS_Support.pdf` (Seite 1):
+mit `pdftocairo -svg -x -y -W -H` ausgeschnitten, Hintergrund und Nachbar-Elemente per Skript entfernt,
+die großen Textur-Pfade (Körnung) weggelassen und mit `svgo` verkleinert – zusammen rund 100 KB.
+Die Karte nutzt dieselben Farben: Grün für vergangene, Coral für geplante Termine, Purple für Altglascontainer.
 Der Hosting-Absatz beschreibt All-Inkl (Ziel-Domain); die GitHub-Pages-Vorschau ist davon nicht erfasst.
