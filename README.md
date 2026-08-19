@@ -59,11 +59,32 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
 | [`landing/index.html`](landing/index.html) | Platzhalter-Landingpage für die Domain (siehe oben) |
 | [`TODO.md`](TODO.md) | Offene Punkte vor dem Live-Gang der Hauptseite |
+| [`.htaccess`](.htaccess) | Cache-Header für das Apache-Hosting (siehe unten) |
+| [`.githooks/`](.githooks/) | pre-commit-Hook, der die `?v=`-Version in `index.html` hochzählt |
 
 Ein neuer Termin ist ein neuer Eintrag in `termine.json`;
 Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
 
 Impressum und Datenschutzerklärung klappen im Footer aus (`#impressum`, `#datenschutz`).
+
+## Caching / Deployment
+
+`index.html` bindet `style.css?v=…` und `script.js?v=…` mit einem Zeitstempel ein,
+damit Browser nach einem Deployment nicht die alte Datei aus dem Cache nehmen.
+Der Zeitstempel wird vom Hook [`.githooks/pre-commit`](.githooks/pre-commit) automatisch hochgezählt,
+sobald eine der drei Dateien committet wird – einmalig pro Klon aktivieren:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+`termine.json` und `glascontainer.json` lädt `script.js` mit `cache: 'no-cache'`,
+d. h. der Browser fragt den Server jedes Mal nach einer neuen Version (ETag/304) – neue Termine erscheinen sofort.
+Fotos, Grafiken und Schriften haben stabile Namen; ändert sich eine Datei inhaltlich, bekommt sie einen neuen Namen.
+
+GitHub Pages liefert alles mit `Cache-Control: max-age=600` aus (10 Minuten).
+Für das Apache-Hosting auf der eigenen Domain setzt [`.htaccess`](.htaccess) die Header:
+HTML und JSON `no-cache`, versionierte Assets eine Woche.
 
 ## Design
 

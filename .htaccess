@@ -1,0 +1,11 @@
+# Gilt nur auf dem Apache-Hosting (All-Inkl), GitHub Pages ignoriert die Datei.
+# HTML und JSON immer beim Server nachfragen (ETag/304), damit neue Termine sofort ankommen.
+# CSS/JS hängen an ?v=… in index.html (siehe .githooks/pre-commit) und dürfen länger im Cache bleiben.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(css|js|svg|woff2|jpg|png)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>

@@ -1,0 +1,9 @@
+#!/bin/sh
+# Cache-Busting: Versionsparameter (?v=…) in index.html hochzählen,
+# sobald style.css oder script.js (oder index.html selbst) committet werden.
+# Aktivieren (einmalig pro Klon): git config core.hooksPath .githooks
+if git diff --cached --name-only | grep -qE '^(index\.html|style\.css|script\.js)$'; then
+  v=$(date -u +%Y%m%d%H%M)
+  sed -i '' -E "s/(href=\"style\.css\?v=|src=\"script\.js\?v=)[0-9]+/\1$v/g" index.html
+  git add index.html
+fi

@@ -4,7 +4,7 @@ document.documentElement.classList.add('js');
   'use strict';
 
   /* ---------- Daten ---------- */
-  const RAW = await fetch('termine.json').then(r => r.json());
+  const RAW = await fetch('termine.json', { cache: 'no-cache' }).then(r => r.json());
 
   const DEFAULT_TIME = '13:00';   // Uhrzeit, wenn im Termin kein "time" steht
   const DURATION_MIN = 90;
@@ -199,7 +199,7 @@ document.documentElement.classList.add('js');
   glassToggle.addEventListener('change', async () => {
     if (glassToggle.checked && !glassLoaded) {
       glassLoaded = true;
-      const containers = await fetch('glascontainer.json').then(r => r.json());
+      const containers = await fetch('glascontainer.json', { cache: 'no-cache' }).then(r => r.json());
       containers.forEach(c => L.circleMarker([c.lat, c.lng], {
         pane: 'glass',
         radius: 4.5,
