@@ -1,7 +1,7 @@
 # Offene Punkte
 
 Die Landingpage (`landing/index.html`) kann live gehen;
-die Hauptseite wartet noch auf Feinschliff.
+die Hauptseite wartet noch auf die Punkte unten.
 
 ## Vor dem Live-Gang der Hauptseite
 
@@ -9,18 +9,10 @@ die Hauptseite wartet noch auf Feinschliff.
 - [ ] Fotos in den Popups: Einwilligung der abgebildeten Personen klären.
 - [ ] Deployment vom Repo ins Webroot festlegen (Hand-Upload oder GitHub-Action mit FTP-Deploy).
 
-## Inhaltlich gegenzulesen
+## Inhalt
 
-- [ ] Team-Abschnitt: Texte und Fotos.
-- [ ] Standard-Uhrzeit (`DEFAULT_TIME` in `script.js`) prüfen bzw. pro Termin `time` in `termine.json` pflegen.
-- [ ] Zitate und Aussagen im Text (Gründungsjahr, Footer-Claim, Absage-Regel) bestätigen.
+- [ ] Team-Abschnitt: Fotos.
 - [ ] Termine 2027 in `termine.json` eintragen, sobald sie feststehen.
-
-## Design / Feinschliff
-
-- [x] Hauptseite optisch an CI/Flyer angleichen (Farben, Schriften, Logo, Illustrationen).
-- [ ] Landingpage auf das SVG-Logo umstellen (aktuell noch JPEG als data-URI).
-- [ ] Fotos für Hero und Ablauf-Abschnitt.
 
 ## Ideen für später
 
