@@ -67,6 +67,11 @@ Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
 
 Impressum und Datenschutzerklärung klappen im Footer aus (`#impressum`, `#datenschutz`).
 
+Die Kartenkacheln kommen von CARTO und brauchen seit 2026 einen API-Key
+(`CARTO_KEY` in `script.js`; kostenlos und ohne Account über
+[carto.com/basemaps/apikey](https://carto.com/basemaps/apikey), bis 5 Mio. Anfragen im Monat für nicht-kommerzielle Projekte).
+Ohne Key liefert CARTO nur ein „API KEY REQUIRED“-Wasserzeichen.
+
 ## Caching / Deployment
 
 `index.html` bindet `style.css?v=…` und `script.js?v=…` mit einem Zeitstempel ein,

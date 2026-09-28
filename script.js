@@ -7,6 +7,7 @@ document.documentElement.classList.add('js');
   const RAW = await fetch('termine.json', { cache: 'no-cache' }).then(r => r.json());
 
   const DEFAULT_TIME = '13:00';   // Uhrzeit, wenn im Termin kein "time" steht
+  const CARTO_KEY = 'cb1_41h4_1_1daddbf174ca1becc9902013';  // Kachel-Key von carto.com/basemaps/apikey (kostenlos, ohne Key kommt nur ein Wasserzeichen)
   const DURATION_MIN = 90;
 
   const parseDate = s => {
@@ -159,7 +160,7 @@ document.documentElement.classList.add('js');
   /* ---------- Karte ---------- */
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const map = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([51.9607, 7.6261], 13);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`, {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: 'abcd',
     maxZoom: 19,
