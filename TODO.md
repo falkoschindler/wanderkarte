@@ -21,3 +21,8 @@ die Hauptseite wartet noch auf Feinschliff.
 - [x] Hauptseite optisch an CI/Flyer angleichen (Farben, Schriften, Logo, Illustrationen).
 - [ ] Landingpage auf das SVG-Logo umstellen (aktuell noch JPEG als data-URI).
 - [ ] Fotos für Hero und Ablauf-Abschnitt.
+
+## Ideen für später
+
+- [ ] Gesammeltes Müllgewicht pro Termin festhalten (z. B. `weight` in `termine.json`)
+  und als kleine Statistik anzeigen: Einzeltermine plus Gesamtsumme (Vorschlag von Klara).
