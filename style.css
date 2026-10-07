@@ -867,8 +867,9 @@ aside {
 .avatar {
   display: grid;
   place-items: center;
-  width: 76px; height: 76px;
+  width: 104px; height: 104px;
   border-radius: 50%;
+  object-fit: cover;
   background: var(--sage);
   color: var(--green-deep);
   font-family: var(--display);
@@ -891,12 +892,6 @@ aside {
   margin: 0.2rem 0 0.8rem;
 }
 .person p { font-size: 0.95rem; color: var(--muted); }
-.person .photo-hint {
-  margin-top: 1rem;
-  font-size: 0.78rem;
-  font-style: italic;
-  color: #9A928B;
-}
 .person-join { border-style: dashed; background: var(--white); }
 .person-join .btn { margin-top: 1.1rem; }
 

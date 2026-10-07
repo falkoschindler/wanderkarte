@@ -11,7 +11,6 @@ die Hauptseite wartet noch auf die Punkte unten.
 
 ## Inhalt
 
-- [ ] Team-Abschnitt: Fotos.
 - [ ] Termine 2027 in `termine.json` eintragen, sobald sie feststehen.
 
 ## Ideen für später

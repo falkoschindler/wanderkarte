@@ -54,6 +54,7 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`termine.json`](termine.json) | Alle Clean-Ups: `date`, `location`, `lat`/`lng`, optional `note` |
 | [`glascontainer.json`](glascontainer.json) | Altglascontainer als zuschaltbare Kartenebene: `lat`/`lng`, `ort`, `viertel` |
 | [`bilder/`](bilder/) | Fotos der letzten Clean-Ups, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
+| [`team/`](team/) | Porträts für den Team-Abschnitt, quadratisch 320 px, als Kreis angezeigt |
 | [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten) |
 | [`fonts/`](fonts/) | Fredoka und Bebas Neue als WOFF2 (SIL Open Font License), lokal eingebunden |
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
