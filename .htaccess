@@ -1,4 +1,13 @@
 # Gilt nur auf dem Apache-Hosting (All-Inkl), GitHub Pages ignoriert die Datei.
+
+# www.muellwandern-muenster.de auf die Adresse ohne www umleiten (passend zum Canonical-Link).
+# http → https erledigt All-Inkl selbst.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+</IfModule>
+
 # HTML und JSON immer beim Server nachfragen (ETag/304), damit neue Termine sofort ankommen.
 # CSS/JS hängen an ?v=… in index.html (siehe .githooks/pre-commit) und dürfen länger im Cache bleiben.
 <IfModule mod_headers.c>

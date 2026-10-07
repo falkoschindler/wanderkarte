@@ -42,7 +42,7 @@ Der CARTO-Key ist nur für die Domain freigeschaltet, lokal bleibt der Kartenhin
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
 | [`landing/index.html`](landing/index.html) | Frühere Platzhalter-Landingpage (siehe oben) |
 | [`TODO.md`](TODO.md) | Offene Punkte und Ideen |
-| [`.htaccess`](.htaccess) | Cache-Header für das Apache-Hosting (siehe unten) |
+| [`.htaccess`](.htaccess) | Cache-Header und Umleitung von `www.` auf die Domain ohne www für das Apache-Hosting (siehe unten) |
 | [`.githooks/`](.githooks/) | pre-commit-Hook, der die `?v=`-Version in `index.html` hochzählt |
 | [`deploy.sh`](deploy.sh) | Upload ins Webroot per rsync über SSH (siehe unten) |
 
