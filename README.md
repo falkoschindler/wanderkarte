@@ -39,7 +39,7 @@ Der CARTO-Key ist nur für die Domain freigeschaltet, lokal bleibt der Kartenhin
 | [`glascontainer.json`](glascontainer.json) | Altglascontainer als zuschaltbare Kartenebene: `lat`/`lng`, `ort`, `viertel` |
 | [`bilder/`](bilder/) | Gruppenfotos der Clean-Ups seit April 2023 aus den Instagram-Beiträgen, 4:3 um die Gruppe beschnitten, 540 px, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
 | [`team/`](team/) | Porträts für den Team-Abschnitt, quadratisch 320 px, als Kreis angezeigt |
-| [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten) |
+| [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten), dazu `vorschau.jpg` (1200 × 630) als Vorschaubild beim Teilen des Links (`og:image`) |
 | [`fonts/`](fonts/) | Fredoka und Bebas Neue als WOFF2 (SIL Open Font License), lokal eingebunden |
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
 | [`landing/index.html`](landing/index.html) | Frühere Platzhalter-Landingpage (siehe oben) |
