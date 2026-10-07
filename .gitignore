@@ -1,2 +1,3 @@
 tmp.md
 .playwright-mcp/
+.deploy.env

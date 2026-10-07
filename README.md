@@ -3,48 +3,30 @@
 Webseite und Karte für die monatlichen Clean-Ups in Münster:
 jeden 2. Sonntag im Monat sammeln wir gemeinsam Müll ein.
 
-Live unter <https://falkoschindler.github.io/wanderkarte/> (GitHub Pages, Branch `main`, Verzeichnis `/`).
+Live unter <https://muellwandern-muenster.de/> (Hosting bei All-Inkl, siehe [Deployment](#deployment)).
 
-## ⚠️ Vor dem Umzug auf die richtige Domain: `noindex` entfernen!
+## Suchmaschinen
 
-In [`index.html`](index.html) steht im `<head>`:
+Die Seite ist indexierbar (kein `noindex` mehr).
+`index.html` nennt per `<link rel="canonical">` die Domain als einzige gültige Adresse,
+falls doch irgendwo eine Kopie auftaucht.
+Die frühere Vorschau unter GitHub Pages (`falkoschindler.github.io/wanderkarte/`) ist abgeschaltet,
+damit es keinen zweiten, doppelt indexierten Auftritt gibt.
+Wird sie wieder eingeschaltet, bleibt der Canonical-Link die einzige Absicherung:
+eine wirksame `robots.txt` oder `X-Robots-Tag`-Header lassen sich auf GitHub Pages nicht setzen.
 
-```html
-<meta name="robots" content="noindex, nofollow">
-```
+## Landingpage (abgelöst)
 
-Damit hält sich die Seite bewusst aus Google & Co. heraus, solange sie nur unter der GitHub-Pages-URL läuft.
-**Sobald die Seite auf die eigentliche Domain umzieht, muss diese Zeile weg** —
-sonst bleibt die neue Seite dauerhaft unauffindbar, und niemand merkt es,
-weil die Seite selbst völlig normal aussieht.
-
-Kurz zum Hintergrund, damit die Entscheidung nachvollziehbar bleibt:
-
-- Eine `robots.txt` in *diesem* Repo würde unter `/wanderkarte/robots.txt` landen und von Crawlern ignoriert.
-  Gültig ist nur eine in der Domain-Wurzel, also `https://falkoschindler.github.io/robots.txt`,
-  und die käme aus einem separaten Repo `falkoschindler.github.io` und würde dann für *alle* Projektseiten gelten.
-- Eigene HTTP-Header (`X-Robots-Tag`) kann GitHub Pages nicht setzen.
-- Das Meta-Tag wirkt dagegen unabhängig vom Pfad und betrifft nur dieses Projekt.
-
-Nicht abgedeckt: die Seite bleibt für jeden erreichbar, der die URL kennt,
-und die Repo-Seite auf github.com selbst kann weiterhin indexiert werden.
-
-## Landingpage (Platzhalter)
-
-Unter <https://muellwandern-muenster.de/> liegt vorerst nur [`landing/index.html`](landing/index.html):
+[`landing/index.html`](landing/index.html) lag bis zum Umzug als Platzhalter unter der Domain:
 eine einzelne, statische Datei mit dem nächsten Clean-Up, den restlichen Terminen des Jahres und Links zu Instagram und Mail.
-Schriften (Fredoka, Bebas Neue – SIL Open Font License) und das Instagram-Logo sind als data-URIs eingebettet,
-die Seite braucht also keine weiteren Dateien und keinen externen Font-Server.
-
-Termine stehen dort zweimal – in der HTML-Liste und im `<script>` –
-und werden nicht aus `termine.json` gelesen; beim Nachtragen beide Stellen pflegen.
-Vergangene Termine blendet die Seite selbst aus, gibt es keine kommenden mehr, verweist sie auf Instagram.
-Impressum und Datenschutzerklärung stecken als aufklappbare Abschnitte in derselben Datei (`#impressum`, `#datenschutz`).
-Sobald die Hauptseite fertig ist, ersetzt sie die Landingpage (dann `noindex` entfernen, siehe oben).
+Seit dem Umzug ersetzt die Hauptseite sie; die Datei wird nicht mehr hochgeladen.
 
 ## Aufbau
 
-Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Browser öffnen.
+Statische Seite ohne Build-Schritt.
+Zum lokalen Testen über einen Webserver öffnen, z. B. `python3 -m http.server` und dann <http://localhost:8000>;
+direkt per `file://` blockiert der Browser das Laden von `termine.json`.
+Der CARTO-Key ist nur für die Domain freigeschaltet, lokal bleibt der Kartenhintergrund deshalb grau.
 
 | Datei | Inhalt |
 | --- | --- |
@@ -58,10 +40,11 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten) |
 | [`fonts/`](fonts/) | Fredoka und Bebas Neue als WOFF2 (SIL Open Font License), lokal eingebunden |
 | [`vendor/leaflet/`](vendor/leaflet/) | Leaflet 1.9.4 (BSD-2-Clause), lokal statt vom CDN – so bleibt der Kachelserver der einzige Drittanbieter |
-| [`landing/index.html`](landing/index.html) | Platzhalter-Landingpage für die Domain (siehe oben) |
-| [`TODO.md`](TODO.md) | Offene Punkte vor dem Live-Gang der Hauptseite |
+| [`landing/index.html`](landing/index.html) | Frühere Platzhalter-Landingpage (siehe oben) |
+| [`TODO.md`](TODO.md) | Offene Punkte und Ideen |
 | [`.htaccess`](.htaccess) | Cache-Header für das Apache-Hosting (siehe unten) |
 | [`.githooks/`](.githooks/) | pre-commit-Hook, der die `?v=`-Version in `index.html` hochzählt |
+| [`deploy.sh`](deploy.sh) | Upload ins Webroot per rsync über SSH (siehe unten) |
 
 Ein neuer Termin ist ein neuer Eintrag in `termine.json`;
 Einträge ohne `lat`/`lng` erscheinen in der Liste, aber nicht auf der Karte.
@@ -73,7 +56,7 @@ Die Kartenkacheln kommen von CARTO und brauchen seit 2026 einen API-Key
 [carto.com/basemaps/apikey](https://carto.com/basemaps/apikey), bis 5 Mio. Anfragen im Monat für nicht-kommerzielle Projekte).
 Ohne Key liefert CARTO nur ein „API KEY REQUIRED“-Wasserzeichen.
 
-## Caching / Deployment
+## Caching
 
 `index.html` bindet `style.css?v=…` und `script.js?v=…` mit einem Zeitstempel ein,
 damit Browser nach einem Deployment nicht die alte Datei aus dem Cache nehmen.
@@ -88,9 +71,34 @@ git config core.hooksPath .githooks
 d. h. der Browser fragt den Server jedes Mal nach einer neuen Version (ETag/304) – neue Termine erscheinen sofort.
 Fotos, Grafiken und Schriften haben stabile Namen; ändert sich eine Datei inhaltlich, bekommt sie einen neuen Namen.
 
-GitHub Pages liefert alles mit `Cache-Control: max-age=600` aus (10 Minuten).
-Für das Apache-Hosting auf der eigenen Domain setzt [`.htaccess`](.htaccess) die Header:
+Auf dem Apache-Hosting setzt [`.htaccess`](.htaccess) die Header:
 HTML und JSON `no-cache`, versionierte Assets eine Woche.
+
+## Deployment
+
+[`deploy.sh`](deploy.sh) lädt die Seite per `rsync` über SSH ins Webroot von `muellwandern-muenster.de`:
+
+```sh
+./deploy.sh -n   # Probelauf: zeigt nur, was sich ändern würde
+./deploy.sh      # hochladen
+```
+
+Hochgeladen werden nur `index.html`, `style.css`, `script.js`, `termine.json`, `glascontainer.json`, `.htaccess`
+und die Ordner `bilder/`, `team/`, `grafik/`, `fonts/`, `vendor/`.
+Innerhalb dieser Ordner löscht `rsync` auch Dateien, die es im Repo nicht mehr gibt;
+alles andere im Webroot bleibt unberührt.
+Das Skript bricht ab, solange eine dieser Dateien uncommittete Änderungen hat –
+live entspricht so immer einem Commit.
+
+Einmalig einrichten:
+
+1. Im All-Inkl-KAS unter *Tools → SSH-Zugänge* SSH aktivieren (ab Tarif PrivatPlus)
+   und den eigenen Public Key hinterlegen.
+2. Ziel in `.deploy.env` eintragen (steht in `.gitignore`), Benutzer und Pfad wie im KAS angezeigt:
+
+   ```sh
+   DEPLOY_TARGET="ssh-w0123456@w0123456.kasserver.com:/www/htdocs/w0123456/muellwandern-muenster.de/"
+   ```
 
 ## Design
 
@@ -104,4 +112,3 @@ Logo und Müll-Illustrationen in [`grafik/`](grafik/) sind Vektoren aus `MuellWa
 mit `pdftocairo -svg -x -y -W -H` ausgeschnitten, Hintergrund und Nachbar-Elemente per Skript entfernt,
 die großen Textur-Pfade (Körnung) weggelassen und mit `svgo` verkleinert – zusammen rund 100 KB.
 Die Karte nutzt dieselben Farben: Grün für vergangene, Coral für geplante Termine, Purple für Altglascontainer.
-Der Hosting-Absatz beschreibt All-Inkl (Ziel-Domain); die GitHub-Pages-Vorschau ist davon nicht erfasst.

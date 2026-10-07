@@ -1,13 +1,5 @@
 # Offene Punkte
 
-Die Landingpage (`landing/index.html`) kann live gehen;
-die Hauptseite wartet noch auf die Punkte unten.
-
-## Vor dem Live-Gang der Hauptseite
-
-- [ ] `noindex` entfernen, sobald die Seite auf die Domain umzieht (siehe README).
-- [ ] Deployment vom Repo ins Webroot festlegen (Hand-Upload oder GitHub-Action mit FTP-Deploy).
-
 ## Inhalt
 
 - [ ] Termine 2027 in `termine.json` eintragen, sobald sie feststehen.
