@@ -51,9 +51,9 @@ Statische Seite ohne Build-Schritt — einfach [`index.html`](index.html) im Bro
 | [`index.html`](index.html) | Seitenstruktur: Hero, nächster Termin, Ablauf, Karte, Mitmachen, Team, Kontakt |
 | [`style.css`](style.css) | Gesamtes Styling |
 | [`script.js`](script.js) | Karte (Leaflet, per CDN), Terminliste, Zeitleiste, Ebenen-Umschalter |
-| [`termine.json`](termine.json) | Alle Clean-Ups: `date`, `location`, `lat`/`lng`, optional `note` |
+| [`termine.json`](termine.json) | Alle Clean-Ups: `date`, `location`, `lat`/`lng`, optional `note`, `time` sowie `photo`/`post` (Gruppenfoto und Instagram-Beitrag) |
 | [`glascontainer.json`](glascontainer.json) | Altglascontainer als zuschaltbare Kartenebene: `lat`/`lng`, `ort`, `viertel` |
-| [`bilder/`](bilder/) | Fotos der letzten Clean-Ups, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
+| [`bilder/`](bilder/) | Gruppenfotos der Clean-Ups seit April 2023 aus den Instagram-Beiträgen, 4:3 um die Gruppe beschnitten, 540 px, Dateiname `YYYY-MM-DD.jpg`, verlinkt in den Karten-Popups |
 | [`team/`](team/) | Porträts für den Team-Abschnitt, quadratisch 320 px, als Kreis angezeigt |
 | [`grafik/`](grafik/) | Logo und Müll-Illustrationen vom Flyer als SVG (siehe unten) |
 | [`fonts/`](fonts/) | Fredoka und Bebas Neue als WOFF2 (SIL Open Font License), lokal eingebunden |
