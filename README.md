@@ -10,6 +10,8 @@ Live unter <https://muellwandern-muenster.de/> (Hosting bei All-Inkl, siehe [Dep
 Die Seite ist indexierbar (kein `noindex` mehr).
 `index.html` nennt per `<link rel="canonical">` die Domain als einzige gültige Adresse,
 falls doch irgendwo eine Kopie auftaucht.
+Die Domain ist in der Google Search Console als URL-Präfix-Property eingetragen,
+bestätigt über das Meta-Tag `google-site-verification` in `index.html` – das Tag muss drinbleiben.
 Die frühere Vorschau unter GitHub Pages (`falkoschindler.github.io/wanderkarte/`) ist abgeschaltet,
 damit es keinen zweiten, doppelt indexierten Auftritt gibt.
 Wird sie wieder eingeschaltet, bleibt der Canonical-Link die einzige Absicherung:
